@@ -35,10 +35,17 @@ public class PlayerDataCache {
         UUID uuid = player.getUniqueId();
         storageManager.loadPlayerData(uuid).thenAccept(data ->
                 Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (!player.isOnline()) {
+                        return;
+                    }
+
                     PlayerData current = cache.get(uuid);
                     if (current == null) {
                         data.syncRealStatistics(player);
                         cache.put(uuid, data);
+                        if (plugin.getPermissionManager() != null) {
+                            plugin.getPermissionManager().refreshPlayer(player);
+                        }
                         return;
                     }
 
@@ -49,6 +56,9 @@ public class PlayerDataCache {
                     }
 
                     current.syncRealStatistics(player);
+                    if (plugin.getPermissionManager() != null) {
+                        plugin.getPermissionManager().refreshPlayer(player);
+                    }
                 })
         );
     }

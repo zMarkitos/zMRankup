@@ -94,6 +94,13 @@ public class MenuManager {
     }
 
     public void openMenu(Player player, RankupSystem system, int page) {
+        final RankupSystem targetSystem = system;
+        final int targetPage = page;
+        if (!org.bukkit.Bukkit.isPrimaryThread()) {
+            org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> openMenu(player, targetSystem, targetPage));
+            return;
+        }
+
         RankManager rm = plugin.getRankManager();
         TemplateManager tm = plugin.getTemplateManager();
 

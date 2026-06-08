@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 public final class VersionChecker {
 
     private static final String API_URL = "https://api.spigotmc.org/legacy/update.php?resource=%s";
-    private static final String RESOURCE_ID = "585858889";
+    private static final String RESOURCE_ID = "135973";
     private static final String SPIGOT_PAGE_URL = "https://www.spigotmc.org/resources/zmrankup.%s/";
     private static final String MODRINTH_PAGE_URL = "https://modrinth.com/plugin/zmrankup";
     private static final String NOTIFICATION_PERMISSION = "zmrankup.admin";

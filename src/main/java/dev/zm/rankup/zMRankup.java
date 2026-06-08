@@ -8,6 +8,7 @@ import dev.zm.rankup.hook.HookManager;
 import dev.zm.rankup.listener.PlayerListener;
 import dev.zm.rankup.menu.MenuListener;
 import dev.zm.rankup.menu.MenuManager;
+import dev.zm.rankup.permission.PermissionManager;
 import dev.zm.rankup.rank.RankManager;
 import dev.zm.rankup.rank.TemplateManager;
 import dev.zm.rankup.requirement.RequirementRegistry;
@@ -34,6 +35,7 @@ public final class zMRankup extends JavaPlugin {
     private RewardRegistry rewardRegistry;
     private TemplateManager templateManager;
     private SystemManager systemManager;
+    private PermissionManager permissionManager;
     private RankManager rankManager;
     private MenuManager menuManager;
     private CommandManager commandManager;
@@ -74,6 +76,9 @@ public final class zMRankup extends JavaPlugin {
         
         this.systemManager = new SystemManager(this);
         this.systemManager.loadAll();
+
+        this.permissionManager = new PermissionManager(this);
+        this.permissionManager.load();
         
         this.rankManager = new RankManager(this);
         
@@ -101,6 +106,7 @@ public final class zMRankup extends JavaPlugin {
 
         // Load data for online players (in case of reload)
         for (Player p : Bukkit.getOnlinePlayers()) {
+            this.permissionManager.ensureAttachment(p);
             this.playerDataCache.load(p);
         }
 
@@ -113,6 +119,9 @@ public final class zMRankup extends JavaPlugin {
         long startTime = System.currentTimeMillis();
         if (this.playerDataCache != null) {
             this.playerDataCache.saveAll();
+        }
+        if (this.permissionManager != null) {
+            this.permissionManager.clearAll();
         }
         if (this.storageManager != null) {
             this.storageManager.shutdown();
@@ -159,10 +168,12 @@ public final class zMRankup extends JavaPlugin {
         this.hookManager.setup(); // Try to hook again in case plugins loaded later
         this.templateManager.loadTemplates();
         this.systemManager.reload();
+        this.permissionManager.reload();
         this.menuManager.loadMenuConfig();
         if (this.commandManager != null) {
             this.commandManager.reloadDynamicCommands();
         }
+        this.permissionManager.refreshAllOnlinePlayers();
     }
 
     public static zMRankup getInstance() {
@@ -207,6 +218,10 @@ public final class zMRankup extends JavaPlugin {
 
     public SystemManager getSystemManager() {
         return systemManager;
+    }
+
+    public PermissionManager getPermissionManager() {
+        return permissionManager;
     }
 
     public RankManager getRankManager() {

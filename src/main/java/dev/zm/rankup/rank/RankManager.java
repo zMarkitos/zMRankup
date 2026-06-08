@@ -149,6 +149,9 @@ public class RankManager {
         data.incrementRankups();
         data.setLastRankupTime(System.currentTimeMillis());
         plugin.getPlayerDataCache().save(player.getUniqueId());
+        if (plugin.getPermissionManager() != null) {
+            plugin.getPermissionManager().refreshPlayer(player);
+        }
 
         PlaceholderContext context = PlaceholderContext.withPosition(next.getListPosition());
 
@@ -192,6 +195,9 @@ public class RankManager {
         data.incrementRankups();
         data.setLastRankupTime(System.currentTimeMillis());
         plugin.getPlayerDataCache().save(player.getUniqueId());
+        if (plugin.getPermissionManager() != null) {
+            plugin.getPermissionManager().refreshPlayer(player);
+        }
         
         PlaceholderContext context = PlaceholderContext.withPosition(rank.getListPosition());
         RewardExecutor.executeAll(player, rank.getRewards(), context);

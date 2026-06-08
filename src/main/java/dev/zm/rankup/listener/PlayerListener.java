@@ -21,12 +21,14 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+        plugin.getPermissionManager().ensureAttachment(event.getPlayer());
         plugin.getPlayerDataCache().load(event.getPlayer());
         plugin.getVersionChecker().notifyPlayer(event.getPlayer());
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        plugin.getPermissionManager().removePlayer(event.getPlayer());
         plugin.getPlayerDataCache().saveAndRemove(event.getPlayer().getUniqueId());
     }
 

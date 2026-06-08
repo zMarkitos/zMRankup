@@ -1,0 +1,121 @@
+# ============================================================
+#  zMRankup - Permission Groups Configuration
+# ------------------------------------------------------------
+#  This file allows you to create permission groups that can
+#  be assigned to ranks using the "permission-group" option.
+#
+#  Example:
+#
+#  ranks:
+#    1:
+#      permission-group: 1
+#
+#  Groups support inheritance, allowing higher groups to
+#  automatically inherit permissions from lower groups.
+#
+#  Similar to LuckPerms:
+#    parent: 1
+#
+#  Supports permission negation:
+#
+#    permissions:
+#      - -example.permission
+#
+#  This removes an inherited permission from the group.
+# ============================================================
+
+groups:
+
+  # ----------------------------------------------------------
+  # Group 1
+  # Base permissions granted to new players.
+  # ----------------------------------------------------------
+  1:
+    permissions:
+      - essentials.warp.mina1
+
+  # ----------------------------------------------------------
+  # Group 2
+  # Inherits all permissions from Group 1.
+  # ----------------------------------------------------------
+  2:
+    parent: 1
+    permissions:
+      - essentials.warp.mina2
+
+  # ----------------------------------------------------------
+  # Group 3
+  # Inherits all permissions from Group 2.
+  #
+  # Example of permission negation:
+  # "-essentials.warp.mina1" removes the inherited permission.
+  # ----------------------------------------------------------
+  3:
+    parent: 2
+    permissions:
+      - -essentials.warp.mina1
+      - essentials.warp.mina3
+
+  # ----------------------------------------------------------
+  # Group 4
+  # Inherits all permissions from Group 3.
+  # ----------------------------------------------------------
+  4:
+    parent: 3
+    permissions:
+      - rankup.zone.diamond
+
+  # ----------------------------------------------------------
+  # Group 5
+  # Inherits all permissions from Group 4.
+  # ----------------------------------------------------------
+  5:
+    parent: 4
+    permissions:
+      - rankup.command.feed
+
+  # ----------------------------------------------------------
+  # Group 6
+  # Inherits all permissions from Group 5.
+  # ----------------------------------------------------------
+  6:
+    parent: 5
+    permissions:
+      - rankup.world.resources
+
+  # ----------------------------------------------------------
+  # Group 7
+  # Inherits all permissions from Group 6.
+  # ----------------------------------------------------------
+  7:
+    parent: 6
+    permissions:
+      - rankup.veteran
+
+  # ----------------------------------------------------------
+  # Group 8
+  # Inherits all permissions from Group 7.
+  # ----------------------------------------------------------
+  8:
+    parent: 7
+    permissions:
+      - rankup.nether.access
+
+  # ----------------------------------------------------------
+  # Group 9
+  # Inherits all permissions from Group 8.
+  # ----------------------------------------------------------
+  9:
+    parent: 8
+    permissions:
+      - rankup.shop.premium
+
+  # ----------------------------------------------------------
+  # Group 10
+  # Final group in this example.
+  # Inherits all permissions from Group 9.
+  # ----------------------------------------------------------
+  10:
+    parent: 9
+    permissions:
+      - rankup.legendary.access

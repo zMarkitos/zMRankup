@@ -150,6 +150,9 @@ public class ZMRankupsCommand implements CommandExecutor, TabCompleter {
                 data.setCurrentRankId(system.getId(), targetRank.getId());
                 if (onlinePlayer != null) {
                     plugin.getRankManager().forceRankup(system, onlinePlayer, targetRank);
+                    if (plugin.getPermissionManager() != null) {
+                        plugin.getPermissionManager().refreshPlayer(onlinePlayer);
+                    }
                 } else {
                     data.incrementRankups();
                     data.setLastRankupTime(System.currentTimeMillis());
@@ -164,29 +167,31 @@ public class ZMRankupsCommand implements CommandExecutor, TabCompleter {
                 }
                 Rank current = system.getRank(currentRankId);
                 if (current == null) {
-                    data.getSystemRanks().remove(system.getId());
+                    data.setCurrentRankId(system.getId(), null);
                     plugin.getMessageManager().sendRaw(sender, "<green>Removed " + playerName + "'s rank in system " + system.getId());
                     return;
                 }
                 int idx = allRanks.indexOf(current);
                 if (idx <= 0) {
                     // Lowest rank, just remove entirely
-                    data.getSystemRanks().remove(system.getId());
+                    data.setCurrentRankId(system.getId(), null);
                     plugin.getMessageManager().sendRaw(sender, "<green>Removed " + playerName + "'s rank in system " + system.getId() + " (was lowest rank)");
                 } else {
                     Rank previous = allRanks.get(idx - 1);
                     data.setCurrentRankId(system.getId(), previous.getId());
                     plugin.getMessageManager().sendRaw(sender, "<green>Downgraded " + playerName + " to rank " + previous.getDisplayName() + " in system " + system.getId());
                 }
-                data.markClean(); // force dirty later
-                data.setCurrentRankId(system.getId(), data.getCurrentRankId(system.getId())); // mark dirty
+                if (onlinePlayer != null && plugin.getPermissionManager() != null) {
+                    plugin.getPermissionManager().refreshPlayer(onlinePlayer);
+                }
                 break;
 
             case "reset":
-                data.getSystemRanks().remove(system.getId());
-                data.setCurrentRankId(system.getId(), null); // mark dirty hack
-                data.getSystemRanks().remove(system.getId());
+                data.setCurrentRankId(system.getId(), null);
                 plugin.getMessageManager().sendRaw(sender, "<green>Reset " + playerName + "'s ranks in system " + system.getId());
+                if (onlinePlayer != null && plugin.getPermissionManager() != null) {
+                    plugin.getPermissionManager().refreshPlayer(onlinePlayer);
+                }
                 break;
         }
     }

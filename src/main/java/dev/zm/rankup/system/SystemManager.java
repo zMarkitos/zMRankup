@@ -100,6 +100,7 @@ public class SystemManager {
             if (listPosition < 1) {
                 listPosition = order + 1;
             }
+            String permissionGroup = rankSection.getString("permission-group", rankSection.getString("permission_group", null));
 
             Map<String, Requirement> requirementsMap = new LinkedHashMap<>();
             ConfigurationSection reqSection = rankSection.getConfigurationSection("requirements");
@@ -129,7 +130,7 @@ public class SystemManager {
 
             List<String> successActions = rankSection.getStringList("actions.success");
 
-            Rank rank = new Rank(id, displayName, order, slot, page, materialStr, requirementsMap, rewards, successActions, null, useDefaultLoreReqs, customReqLore, listPosition, amount);
+            Rank rank = new Rank(id, displayName, order, slot, page, materialStr, permissionGroup, requirementsMap, rewards, successActions, null, useDefaultLoreReqs, customReqLore, listPosition, amount);
             system.addRank(id, rank);
             order++;
         }

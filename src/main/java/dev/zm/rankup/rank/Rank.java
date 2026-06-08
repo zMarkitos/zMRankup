@@ -20,6 +20,7 @@ public class Rank {
     private final int listPosition;
     private final int amount;
     private final String material;
+    private final String permissionGroup;
     private final Map<String, Requirement> requirementsMap;
     private final List<Requirement> requirements;
     private final List<Reward> rewards;
@@ -29,6 +30,7 @@ public class Rank {
     private final List<String> customRequirementsLore;
 
     public Rank(String id, String displayName, int order, int slot, int page, String material,
+                String permissionGroup,
                 Map<String, Requirement> requirementsMap, List<Reward> rewards,
                 List<String> successActions, String templateOverride,
                 boolean useDefaultLoreRequirements, List<String> customRequirementsLore,
@@ -41,6 +43,7 @@ public class Rank {
         this.listPosition = listPosition < 1 ? order + 1 : listPosition;
         this.amount = Math.max(1, amount);
         this.material = material;
+        this.permissionGroup = permissionGroup == null || permissionGroup.isBlank() ? null : permissionGroup;
         this.requirementsMap = requirementsMap == null ? Collections.emptyMap() : Collections.unmodifiableMap(requirementsMap);
         this.requirements = new ArrayList<>(this.requirementsMap.values());
         this.rewards = rewards == null ? Collections.emptyList() : Collections.unmodifiableList(rewards);
@@ -80,6 +83,10 @@ public class Rank {
 
     public String getMaterial() {
         return material;
+    }
+
+    public String getPermissionGroup() {
+        return permissionGroup;
     }
 
     public List<Requirement> getRequirements() {

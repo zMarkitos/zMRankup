@@ -46,12 +46,10 @@ public class StorageManager {
                         "blocks_mined CLOB DEFAULT '{}'," +
                         "system_ranks CLOB DEFAULT '{}'" +
                         ")");
-                        
-                ResultSet columns = conn.getMetaData().getColumns(null, null, "PLAYER_DATA", "SYSTEM_RANKS");
-                if (!columns.next()) {
+
+                if (!hasColumn(conn, "PLAYER_DATA", "SYSTEM_RANKS")) {
                     stmt.execute("ALTER TABLE player_data ADD COLUMN system_ranks CLOB DEFAULT '{}'");
-                    ResultSet currentRankCol = conn.getMetaData().getColumns(null, null, "PLAYER_DATA", "CURRENT_RANK_ID");
-                    if (currentRankCol.next()) {
+                    if (hasColumn(conn, "PLAYER_DATA", "CURRENT_RANK_ID")) {
                         stmt.execute("UPDATE player_data SET system_ranks = CONCAT('{\"rankups\":\"', current_rank_id, '\"}') WHERE current_rank_id IS NOT NULL");
                     }
                 }
@@ -68,6 +66,17 @@ public class StorageManager {
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(JDBC_PREFIX + dbPath + ";MODE=MySQL;DATABASE_TO_LOWER=TRUE");
+    }
+
+    private boolean hasColumn(Connection conn, String tableName, String columnName) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ? AND COLUMN_NAME = ?")) {
+            ps.setString(1, tableName.toUpperCase());
+            ps.setString(2, columnName.toUpperCase());
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
     }
 
     public CompletableFuture<PlayerData> loadPlayerData(UUID uuid) {
@@ -108,7 +117,7 @@ public class StorageManager {
                 PreparedStatement ps = conn.prepareStatement("MERGE INTO player_data " +
                          "(uuid, current_rank_id, total_rankups, last_rankup_time, player_kills, deaths, " +
                          "total_blocks_mined, total_mob_kills, mob_kills, blocks_mined, system_ranks) " +
-                         "KEY(uuid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+                         "KEY(uuid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
                 ps.setString(1, data.getUuid().toString());
                 ps.setString(2, ""); // No longer used, but schema might require it or we just send empty string
                 ps.setInt(3, data.getTotalRankups());

@@ -51,7 +51,11 @@ public class PlayerData {
     }
 
     public void setCurrentRankId(String systemId, String rankId) {
-        this.systemRanks.put(systemId, rankId);
+        if (rankId == null) {
+            this.systemRanks.remove(systemId);
+        } else {
+            this.systemRanks.put(systemId, rankId);
+        }
         this.dirty = true;
     }
 

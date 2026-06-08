@@ -154,6 +154,7 @@ ranks:
   1:
     material: DEFAULT
     display_rank: "&#FF1616&l1"
+    permission-group: 1
     page: 1
     slot: 10
     amount: 1
@@ -184,6 +185,7 @@ ranks:
   2:
     material: DEFAULT
     display_rank: "&#FF1616&l2"
+    permission-group: 2
     page: 1
     slot: 19
     amount: 2
@@ -214,6 +216,7 @@ ranks:
   3:
     material: DEFAULT
     display_rank: "&#FF1616&l3"
+    permission-group: 3
     page: 1
     slot: 28
     amount: 3
@@ -242,6 +245,7 @@ ranks:
   4:
     material: DEFAULT
     display_rank: "&#FF1616&l4"
+    permission-group: 4
     page: 1
     slot: 37
     amount: 4
@@ -269,6 +273,7 @@ ranks:
   5:
     material: DEFAULT
     display_rank: "&#FF1616&l5"
+    permission-group: 5
     page: 1
     slot: 38
     amount: 5
@@ -301,6 +306,7 @@ ranks:
   6:
     material: DEFAULT
     display_rank: "&#FF1616&l6"
+    permission-group: 6
     page: 1
     slot: 39
     amount: 6
@@ -328,6 +334,7 @@ ranks:
   7:
     material: DEFAULT
     display_rank: "&#FF1616&l7"
+    permission-group: 7
     page: 1
     slot: 30
     amount: 7
@@ -352,6 +359,7 @@ ranks:
   8:
     material: DEFAULT
     display_rank: "&#FF1616&l8"
+    permission-group: 8
     page: 1
     slot: 21
     amount: 8
@@ -384,6 +392,7 @@ ranks:
   9:
     material: DEFAULT
     display_rank: "&#FF1616&l9"
+    permission-group: 9
     page: 1
     slot: 12
     amount: 9
@@ -414,6 +423,7 @@ ranks:
   10:
     material: DEFAULT
     display_rank: "&#FF1616&l10"
+    permission-group: 10
     page: 1
     slot: 13
     amount: 10

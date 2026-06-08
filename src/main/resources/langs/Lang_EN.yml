@@ -26,7 +26,7 @@ update-subtitle: "<gray>Version <white>{latest_version} <gray>is out!"
 update-available: "\n{prefix}<green>A new version of zMRankup is available! <gray>({current_version} -> {latest_version})\n"
 update-links: "{prefix}<yellow>Download here: <aqua><u>{version_url}</u>"
 admin-usage: |
-  {prefix}<gold>━━━ zMRankup Admin ━━━
+  <gold>━━━ zMRankup Admin ━━━
   <yellow>/zmrankups admin reload <gray>-> Reload configuration
   <yellow>/zmrankups admin version <gray>-> Check updates
   <yellow>/zmrankups admin add <user> <system> <rank> <gray>-> Add rank
