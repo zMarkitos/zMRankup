@@ -1,0 +1,40 @@
+name: zMRankup
+version: '${project.version}'
+main: dev.zm.rankup.zMRankup
+api-version: '1.19'
+authors: [zMarkitos_]
+description: Advanced Rankup & Progression System with automated setup, customizable ranks, rewards, and powerful integrations.
+
+softdepend:
+  - Vault
+  - PlaceholderAPI
+
+commands:
+  zmrankups:
+    description: Main command for zMRankup
+    usage: /<command> help
+    aliases: [zmr, zmrankup]
+
+permissions:
+  # Core player and admin permission nodes used by the plugin.
+  zmrankup.use:
+    description: Allows using /rankup and /ranks
+    default: true
+  zmrankup.admin:
+    description: Allows using /rankadmin
+    default: op
+  zmrankup.admin.reload:
+    description: Allows reloading the plugin
+    default: op
+  zmrankup.admin.set:
+    description: Allows setting player ranks
+    default: op
+  zmrankup.admin.reset:
+    description: Allows resetting player data
+    default: op
+  zmrankup.autorankup:
+    description: Allows auto-rankup feature
+    default: true
+  zmrankups.autorankup:
+    description: Allows auto-rankup feature (legacy alias)
+    default: true

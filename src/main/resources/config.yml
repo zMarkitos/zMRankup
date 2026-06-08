@@ -1,0 +1,154 @@
+# ============================================================
+#                         zMRankup
+#              Powerful • Flexible • Optimized
+# ============================================================
+# A powerful, flexible and optimized rankup system
+# for modern Minecraft servers.
+#
+# • Lightweight Performance
+# • Fully Configurable
+# • Automatic Rankups
+# • Vault Integration
+# • PlaceholderAPI Support
+# • MiniMessage Formatting
+#
+# Compatible with Paper 1.19+
+# ============================================================
+
+# Do not Modify.
+config-version: 1
+
+# ============================================================
+# General Settings
+# ============================================================
+
+settings:
+  # Prefix used in plugin messages.
+  prefix: "<b><gradient:#FFDC12:#EAC800:#FFDC12>zMRankup</gradient></b> <dark_gray>|</dark_gray> "
+
+  # Language file to load.
+  # Available: EN, ES
+  language: ES
+
+  # Enables additional console logging.
+  # Useful for troubleshooting.
+  debug: false
+
+  # Storage provider.
+  # Available: H2
+  storage: H2
+
+# ============================================================
+# Auto Rankup
+# ============================================================
+
+auto-rankup:
+  # Automatically attempts to rank players up.
+  enabled: false
+
+  # Check interval in seconds.
+  interval: 2
+
+  # Maximum rankups per cycle.
+  # Set to 0 for unlimited.
+  max-per-check: 0
+
+  # Requires a permission node to use auto-rankup.
+  require-permission: false
+
+# ============================================================
+# Rankup Titles
+# ============================================================
+
+titles:
+  # Display a title when a player ranks up.
+  enabled: true
+
+  rankup-success:
+    # Main title text.
+    title: "<b><gradient:#FFDC12:#EAC800:#FFDC12>Progression</gradient></b>"
+    subtitle: "<green>Has alcanzado {rank}"
+
+    # Animation timings (ticks).
+    fade-in: 10
+    stay: 40
+    fade-out: 10
+
+# ============================================================
+# Sounds
+# ============================================================
+
+sounds:
+  # Enable sound effects.
+  enabled: true
+
+  # Played when a rankup succeeds.
+  rankup-success: ENTITY_PLAYER_LEVELUP
+
+  # Played when a rankup fails.
+  rankup-fail: ENTITY_VILLAGER_NO
+
+  # Menu interaction sounds.
+  menu-open: BLOCK_CHEST_OPEN
+  menu-click: UI_BUTTON_CLICK
+  page-turn: ITEM_BOOK_PAGE_TURN
+
+# ============================================================
+# Number Formatting
+# ============================================================
+
+number-format:
+  # Compact large numbers.
+  # Example: 1,000 -> 1K
+  short: true
+
+  suffixes:
+    thousand: "K"
+    million: "M"
+    billion: "B"
+    trillion: "T"
+    quadrillion: "Q"
+
+# ============================================================
+# Progress Bar
+# ============================================================
+
+progress-bar:
+  # Total bar length.
+  length: 8
+
+  # Character used for completed progress.
+  filled-char: "■"
+
+  # Character used for remaining progress.
+  empty-char: "□"
+
+  # Progress colors.
+  filled-color: "<green>"
+  empty-color: "<gray>"
+
+# ============================================================
+# Cooldowns
+# ============================================================
+
+cooldowns:
+  # Prevents players from spamming rankup attempts.
+  enabled: false
+
+  # Cooldown duration in seconds.
+  time: 5
+
+# ============================================================
+# Integrations
+# ============================================================
+
+integrations:
+
+  vault:
+    # Required for economy requirements and rewards.
+    enabled: true
+
+  placeholderapi:
+    # Enables PlaceholderAPI support.
+    # Used for requirements, rewards and placeholders.
+    enabled: true

@@ -1,0 +1,439 @@
+# ============================================================
+#  zMRankup - Rank System Definition
+#  Compatible with Paper 1.19+
+# ============================================================
+
+# Title shown when the ranks menu is opened.
+menu_title: '&8&nMenú de rangos ({page}/{max_page})&r'
+# Primary command that opens this menu.
+open_command:
+- menuranks
+# Register the first open_command entry as a Bukkit command.
+register_command: true
+# Inventory size in slots. Must be a multiple of 9.
+size: 54
+
+# Visual templates for locked, current, and available ranks.
+templates:
+  color-system: "&#FF1616"
+  # Template for ranks that are still locked.
+  locked:
+    material: RED_STAINED_GLASS_PANE
+    display_name: "&fRango &8→ {rank_display}"
+    lore:
+      - ""
+      - "&#FF1616✉ Información"
+      - " &8| &fAumenta tu prestigio para"
+      - " &8| &fdesbloquear recompensas únicas."
+      - ""
+      - "&#FF1616⭐ Recompensas:"
+      - "{rewards}"
+      - ""
+      - "&#FF1616✎ Requisitos:"
+      - "{requirements}"
+      - ""
+      - "&#FF1616⌚ Progreso: &7&o({progress}%)"
+      - "{progress_bar}"
+      - ""
+      - "&#F86767■ Necesitas el rango anterior"
+    glow: false
+
+  # Template for the player's current rank.
+  current:
+    material: LIME_STAINED_GLASS_PANE
+    glow: true
+    display_name: "&fRango &8→ {rank_display}"
+    lore:
+      - ""
+      - "&#FF1616✉ Información"
+      - " &8| &fAumenta tu prestigio para"
+      - " &8| &fdesbloquear recompensas únicas."
+      - ""
+      - "&#FF1616⭐ Recompensas:"
+      - "{rewards}"
+      - ""
+      - "&#FF1616✎ Requisitos:"
+      - "{requirements}"
+      - ""
+      - "&#FF1616⌚ Progreso: &7&o({progress}%)"
+      - "{progress_bar}"
+      - ""
+      - "&#90FF4D■ Ya posees este rango"
+
+  # Template for the next rank the player can claim.
+  available:
+    material: YELLOW_STAINED_GLASS_PANE
+    glow: true
+    display_name: "&fRango &8→ {rank_display}"
+    lore:
+      - ""
+      - "&#FF1616✉ Información"
+      - " &8| &fAumenta tu prestigio para"
+      - " &8| &fdesbloquear recompensas únicas."
+      - ""
+      - "&#FF1616⭐ Recompensas:"
+      - "{rewards}"
+      - ""
+      - "&#FF1616✎ Requisitos:"
+      - "{requirements}"
+      - ""
+      - "&#FF1616⌚ Progreso: &7&o({progress}%)"
+      - "{progress_bar}"
+      - ""
+      - "&#FFF92C■ Haz clic para reclamar"
+
+# Menu decorations and navigation items.
+items:
+  # Decorative filler items for the menu edges.
+  DECORATION:
+    enabled: true
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: " "
+    slots:
+      - 0-8
+      - 44-53
+
+  # Navigation buttons shown at the bottom of the menu.
+  navigation:
+    previous-page:
+      enabled: true
+      slot: 45
+      material: ARROW
+      display_name: "&fNavegación &8→ &#FF1616&lATRÁS"
+      lore:
+        - ""
+        - " &8| &fRegresa a la página"
+        - " &8| &fanterior de rangos."
+        - ""
+        - "&#FF1616■ ¡Clic para volver!"
+    next-page:
+      enabled: true
+      slot: 53
+      material: ARROW
+      display_name: "&fNavegación &8→ &#FF1616&lSIGUIENTE"
+      lore:
+        - ""
+        - " &8| &fAvanza a la siguiente"
+        - " &8| &fpágina de rangos."
+        - ""
+        - "&#FF1616■ ¡Clic para avanzar!"
+    close:
+      enabled: true
+      slot: 49
+      material: BARRIER
+      display_name: "&fNavegación &8→ &#FF1616&lCERRAR"
+      lore:
+        - ""
+        - " &8| &fCierra este menú"
+        - " &8| &fy vuelve al principal."
+        - ""
+        - "&#FF1616■ ¡Clic para cerrar!"
+      actions:
+        - "[sound] UI_BUTTON_CLICK"
+        - "[message] <gray>Cerrando menú..."
+        - "[player_command] menu"
+    # Static info item displayed near the top of the menu.
+    info:
+      enabled: true
+      slot: 4
+      material: BOOK
+      display_name: "&fServidor &8→ &#FF1616&lMI PERFIL"
+      lore:
+        - ""
+        - " &8| &fRango actual: %zmrankup_rank%"
+        - " &8| &fSiguiente rango: %zmrankup_next_rank%"
+        - " &8| &fProgreso: &a%zmrankup_progress%"
+        - ""
+        - " &8| &fPágina: &e{page}/{max_page}"
+        - ""
+
+# Ranks are ordered by file position.
+# Each rank defines a slot, requirements, and rewards.
+ranks:
+  # Example rank definition. Duplicate the structure for more ranks.
+  1:
+    material: DEFAULT
+    display_rank: "&#FF1616&l1"
+    page: 1
+    slot: 10
+    amount: 1
+    list-position: 8
+    # All requirements in this section must be completed to claim the rank.
+    requirements:
+      money:
+        type: vault_balance
+        amount: 1500
+      playtime:
+        type: playtime_hours
+        amount: 1
+      blocks:
+        type: blocks_mined
+        amount: 10
+    # Rewards can show text in the menu and run commands when claimed.
+    rewards:
+      displays:
+        - "&#FF1616• &fKit de iniciado (espada de piedra, pan)"
+        - "&#FF1616• &f150 monedas de bienvenida"
+        - "&#FF1616• &fAcceso temporal a /fly (1 hora)"
+      commands:
+        - "give {player} stone_sword 1"
+        - "give {player} bread 16"
+        - "eco give {player} 150"
+        - "lp user {player} permission settemp aircore.command.fly true 1h"
+
+  2:
+    material: DEFAULT
+    display_rank: "&#FF1616&l2"
+    page: 1
+    slot: 19
+    amount: 2
+    list-position: 8
+    # All requirements in this section must be completed to claim the rank.
+    requirements:
+      money:
+        type: vault_balance
+        amount: 1500
+      playtime:
+        type: playtime_hours
+        amount: 2
+      blocks:
+        type: blocks_mined
+        amount: 20
+    # Rewards can show text in the menu and run commands when claimed.
+    rewards:
+      displays:
+        - "&#FF1616• &fKit de minero (pico de hierro, antorchas)"
+        - "&#FF1616• &f300 monedas"
+        - "&#FF1616• &fAcceso a la mina VIP"
+      commands:
+        - "give {player} iron_pickaxe 1"
+        - "give {player} torch 32"
+        - "eco give {player} 300"
+        - "lp user {player} permission set rankup.mine.vip"
+
+  3:
+    material: DEFAULT
+    display_rank: "&#FF1616&l3"
+    page: 1
+    slot: 28
+    amount: 3
+    list-position: 8
+    # All requirements in this section must be completed to claim the rank.
+    requirements:
+      zombies:
+        type: mob_kills
+        mob: ZOMBIE
+        amount: 5
+      pvp:
+        type: player_kills
+        amount: 2
+    # Rewards can show text in the menu and run commands when claimed.
+    rewards:
+      displays:
+        - "&#FF1616• &fKit de cazador (arco, flechas)"
+        - "&#FF1616• &f500 monedas"
+        - "&#FF1616• &fEfecto de velocidad I (15 min)"
+      commands:
+        - "give {player} bow 1"
+        - "give {player} arrow 32"
+        - "eco give {player} 500"
+        - "effect give {player} minecraft:speed 900 0 true"
+
+  4:
+    material: DEFAULT
+    display_rank: "&#FF1616&l4"
+    page: 1
+    slot: 37
+    amount: 4
+    list-position: 8
+    # All requirements in this section must be completed to claim the rank.
+    requirements:
+      deaths:
+        type: deaths
+        amount: 5
+      diamonds:
+        type: blocks_mined
+        block: DIAMOND_ORE
+        amount: 10
+    # Rewards can show text in the menu and run commands when claimed.
+    rewards:
+      displays:
+        - "&#FF1616• &fKit de diamante (pico de diamante)"
+        - "&#FF1616• &f800 monedas"
+        - "&#FF1616• &fAcceso a la zona de minado exclusiva"
+      commands:
+        - "give {player} diamond_pickaxe 1"
+        - "eco give {player} 800"
+        - "lp user {player} permission set rankup.zone.diamond"
+
+  5:
+    material: DEFAULT
+    display_rank: "&#FF1616&l5"
+    page: 1
+    slot: 38
+    amount: 5
+    list-position: 8
+    # All requirements in this section must be completed to claim the rank.
+    requirements:
+      # display also works with any PlaceholderAPI placeholder, including checkitem_* placeholders
+      level:
+        type: placeholder
+        expression: "%player_level% >= 10"
+        display: "&fNiveles de experiencia"
+      money:
+        type: vault_balance
+        amount: 3000
+      playtime:
+        type: playtime_hours
+        amount: 3
+    # Rewards can show text in the menu and run commands when claimed.
+    rewards:
+      displays:
+        - "&#FF1616• &fKit de guerrero (espada de hierro, escudo)"
+        - "&#FF1616• &f1000 monedas"
+        - "&#FF1616• &fEfecto de fuerza I (20 min)"
+      commands:
+        - "give {player} iron_sword 1"
+        - "give {player} shield 1"
+        - "eco give {player} 1000"
+        - "effect give {player} minecraft:strength 1200 0 true"
+
+  6:
+    material: DEFAULT
+    display_rank: "&#FF1616&l6"
+    page: 1
+    slot: 39
+    amount: 6
+    list-position: 8
+    # All requirements in this section must be completed to claim the rank.
+    requirements:
+      money:
+        type: vault_balance
+        amount: 4000
+      playtime:
+        type: playtime_hours
+        amount: 4
+    # Rewards can show text in the menu and run commands when claimed.
+    rewards:
+      displays:
+        - "&#FF1616• &fKit de constructor (bloques de piedra, palos)"
+        - "&#FF1616• &f1500 monedas"
+        - "&#FF1616• &fAcceso al mundo 'Recursos'"
+      commands:
+        - "give {player} stone 64"
+        - "give {player} stick 32"
+        - "eco give {player} 1500"
+        - "lp user {player} permission set rankup.world.resources"
+
+  7:
+    material: DEFAULT
+    display_rank: "&#FF1616&l7"
+    page: 1
+    slot: 30
+    amount: 7
+    list-position: 8
+    # All requirements in this section must be completed to claim the rank.
+    requirements:
+      playtime_minutes:
+        type: playtime_minutes
+        amount: 720
+    # Rewards can show text in the menu and run commands when claimed.
+    rewards:
+      displays:
+        - "&#FF1616• &fKit veterano (manzanas doradas, experiencia)"
+        - "&#FF1616• &f2000 monedas"
+        - "&#FF1616• &fRango temporal 'Veterano' por 3 días"
+      commands:
+        - "give {player} golden_apple 5"
+        - "xp give {player} 500 levels"
+        - "eco give {player} 2000"
+        - "lp user {player} parent addtemp veteran 3d"
+
+  8:
+    material: DEFAULT
+    display_rank: "&#FF1616&l8"
+    page: 1
+    slot: 21
+    amount: 8
+    list-position: 8
+    # All requirements in this section must be completed to claim the rank.
+    requirements:
+      nether:
+        type: placeholder
+        expression: "%player_world% == world_nether"
+        display: "&fEstar en el Nether"
+      ores:
+        type: blocks_mined
+        block: IRON_ORE
+        amount: 15
+      bounty:
+        type: player_kills
+        amount: 3
+    # Rewards can show text in the menu and run commands when claimed.
+    rewards:
+      displays:
+        - "&#FF1616• &fKit infernal (lingotes de oro, pociones)"
+        - "&#FF1616• &f3000 monedas"
+        - "&#FF1616• &fAcceso al comando /feed"
+      commands:
+        - "give {player} gold_ingot 10"
+        - "give {player} potion 3"
+        - "eco give {player} 3000"
+        - "lp user {player} permission set rankup.command.feed"
+
+  9:
+    material: DEFAULT
+    display_rank: "&#FF1616&l9"
+    page: 1
+    slot: 12
+    amount: 9
+    list-position: 8
+    # All requirements in this section must be completed to claim the rank.
+    requirements:
+      money:
+        type: vault_balance
+        amount: 25000
+      placeholder_check:
+        type: placeholder
+        expression: "%playerpoints_points% >= 100"
+        display: "&fPuntos de PlayerPoints"
+    # Rewards can show text in the menu and run commands when claimed.
+    rewards:
+      displays:
+        - "&#FF1616• &fKit legendario (armadura de hierro encantada)"
+        - "&#FF1616• &f5000 monedas"
+        - "&#FF1616• &fAcceso a la tienda premium"
+      commands:
+        - "give {player} iron_chestplate 1"
+        - "give {player} iron_leggings 1"
+        - "give {player} iron_boots 1"
+        - "give {player} iron_helmet 1"
+        - "eco give {player} 5000"
+        - "lp user {player} permission set rankup.shop.premium"
+
+  10:
+    material: DEFAULT
+    display_rank: "&#FF1616&l10"
+    page: 1
+    slot: 13
+    amount: 10
+    list-position: 8
+    # All requirements in this section must be completed to claim the rank.
+    requirements:
+      kills:
+        type: player_kills
+        amount: 4
+      expression:
+        type: placeholder
+        expression: "%player_level% >= 40"
+        display: "&fNiveles de experiencia"
+    # Rewards can show text in the menu and run commands when claimed.
+    rewards:
+      displays:
+        - "&#FF1616• &fKit asesino (espada de diamante afilada)"
+        - "&#FF1616• &f7500 monedas"
+        - "&#FF1616• &fEfecto de invisibilidad (10 min)"
+      commands:
+        - "give {player} diamond_sword 1"
+        - "eco give {player} 7500"
+        - "effect give {player} minecraft:invisibility 600 0 true"

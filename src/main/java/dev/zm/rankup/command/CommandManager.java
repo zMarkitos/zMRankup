@@ -1,0 +1,117 @@
+package dev.zm.rankup.command;
+
+import dev.zm.rankup.system.RankupSystem;
+import dev.zm.rankup.zMRankup;
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+public class CommandManager {
+
+    private final zMRankup plugin;
+
+    private final List<Command> dynamicCommands = new ArrayList<>();
+
+    public CommandManager(zMRankup plugin) {
+        this.plugin = plugin;
+    }
+
+    public void register() {
+        if (plugin.getCommand("zmrankups") != null) {
+            ZMRankupsCommand cmd = new ZMRankupsCommand(plugin);
+            plugin.getCommand("zmrankups").setExecutor(cmd);
+            plugin.getCommand("zmrankups").setTabCompleter(cmd);
+        }
+
+        reloadDynamicCommands();
+    }
+
+    public void reloadDynamicCommands() {
+        try {
+            CommandMap commandMap = Bukkit.getCommandMap();
+            Map<String, Command> knownCommands = getKnownCommands(commandMap);
+
+            // Unregister old commands from knownCommands map
+            for (Command cmd : dynamicCommands) {
+                cmd.unregister(commandMap);
+                if (knownCommands != null) {
+                    // Remove the primary name (both plain and prefixed)
+                    knownCommands.remove(cmd.getName().toLowerCase());
+                    knownCommands.remove(plugin.getName().toLowerCase() + ":" + cmd.getName().toLowerCase());
+                    // Remove all aliases
+                    for (String alias : cmd.getAliases()) {
+                        knownCommands.remove(alias.toLowerCase());
+                        knownCommands.remove(plugin.getName().toLowerCase() + ":" + alias.toLowerCase());
+                    }
+                }
+            }
+            dynamicCommands.clear();
+
+            // Register new system commands
+            for (RankupSystem system : plugin.getSystemManager().getAllSystems()) {
+                if (!system.isRegisterCommand()) continue;
+                List<String> cmds = system.getOpenCommands();
+                if (cmds.isEmpty()) continue;
+
+                String primary = cmds.get(0);
+                List<String> aliases = cmds.size() > 1 ? cmds.subList(1, cmds.size()) : new ArrayList<>();
+
+                SystemCommand executor = new SystemCommand(plugin, system.getId());
+                
+                Command dynamicCommand = new Command(primary, "Open " + system.getId() + " menu", "/" + primary, aliases) {
+                    @Override
+                    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+                        return executor.onCommand(sender, this, commandLabel, args);
+                    }
+
+                    @NotNull
+                    @Override
+                    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+                        List<String> completions = executor.onTabComplete(sender, this, alias, args);
+                        return completions != null ? completions : new ArrayList<>();
+                    }
+                };
+                
+                commandMap.register(plugin.getName(), dynamicCommand);
+                dynamicCommands.add(dynamicCommand);
+            }
+
+            // Sync commands for all online players so they see the changes in tab completion
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.updateCommands();
+            }
+
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to register dynamic commands: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Command> getKnownCommands(CommandMap commandMap) {
+        try {
+            java.lang.reflect.Field field = commandMap.getClass().getDeclaredField("knownCommands");
+            field.setAccessible(true);
+            return (Map<String, Command>) field.get(commandMap);
+        } catch (NoSuchFieldException e) {
+            // Paper exposes getKnownCommands() directly on SimpleCommandMap
+            try {
+                java.lang.reflect.Method method = commandMap.getClass().getMethod("getKnownCommands");
+                return (Map<String, Command>) method.invoke(commandMap);
+            } catch (Exception ex) {
+                plugin.getLogger().warning("Could not access knownCommands for command cleanup: " + ex.getMessage());
+                return null;
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Could not access knownCommands for command cleanup: " + e.getMessage());
+            return null;
+        }
+    }
+}
