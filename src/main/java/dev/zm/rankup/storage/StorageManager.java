@@ -70,9 +70,9 @@ public class StorageManager {
 
     private boolean hasColumn(Connection conn, String tableName, String columnName) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
-                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ? AND COLUMN_NAME = ?")) {
-            ps.setString(1, tableName.toUpperCase());
-            ps.setString(2, columnName.toUpperCase());
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE LOWER(TABLE_NAME) = LOWER(?) AND LOWER(COLUMN_NAME) = LOWER(?)")) {
+            ps.setString(1, tableName);
+            ps.setString(2, columnName);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() && rs.getInt(1) > 0;
             }
