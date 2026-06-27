@@ -16,12 +16,14 @@ import java.util.List;
 public class ConfigManager {
 
     private final zMRankup plugin;
+    private final YmlMigrationManager migrationManager; // NEW
     private FileConfiguration config;
     private FileConfiguration langConfig;
     private File langFile;
 
     public ConfigManager(zMRankup plugin) {
         this.plugin = plugin;
+        this.migrationManager = new YmlMigrationManager(plugin); // NEW
     }
 
     public void loadAll() {
@@ -29,19 +31,57 @@ public class ConfigManager {
         plugin.reloadConfig();
         this.config = plugin.getConfig();
 
+        if (migrationManager.migrateConfigIfNeeded()) {
+            plugin.reloadConfig();
+            this.config = plugin.getConfig();
+        }
+
+        mergeConfigDefaults();
+
         loadLanguageFile();
+        copyBundledResourceIfMissing("prestiges.yml");
     }
 
     public void reload() {
         plugin.reloadConfig();
         this.config = plugin.getConfig();
+
+        if (migrationManager.migrateConfigIfNeeded()) {
+            plugin.reloadConfig();
+            this.config = plugin.getConfig();
+        }
+
+        mergeConfigDefaults();
         loadLanguageFile();
+        copyBundledResourceIfMissing("prestiges.yml");
+    }
+
+    private void mergeConfigDefaults() {
+        try (java.io.InputStream stream = plugin.getResource("config.yml")) {
+            if (stream == null)
+                return;
+            org.bukkit.configuration.file.FileConfiguration defaultConfig = org.bukkit.configuration.file.YamlConfiguration
+                    .loadConfiguration(
+                            new java.io.InputStreamReader(stream, java.nio.charset.StandardCharsets.UTF_8));
+            if (mergeMissingKeys(defaultConfig, this.config)) {
+                plugin.saveConfig();
+                plugin.reloadConfig();
+                this.config = plugin.getConfig();
+            }
+        } catch (java.io.IOException e) {
+            plugin.getLogger().warning("Failed to merge config defaults: " + e.getMessage());
+        }
     }
 
     private void loadLanguageFile() {
+        migrationManager.migrateLangIfNeeded("EN");
+        migrationManager.migrateLangIfNeeded("ES");
+
         ensureBundledLanguageFiles();
+
         String language = getLanguage();
         String resourcePath = "langs/Lang_" + language + ".yml";
+
         FileConfiguration defaultLang = loadDefaultLanguage(resourcePath);
 
         plugin.getDataFolder().mkdirs();
@@ -64,7 +104,8 @@ public class ConfigManager {
             try {
                 this.langConfig.save(langFile);
             } catch (IOException e) {
-                plugin.getLogger().warning("Failed to update language file " + langFile.getName() + ": " + e.getMessage());
+                plugin.getLogger()
+                        .warning("Failed to update language file " + langFile.getName() + ": " + e.getMessage());
             }
         }
     }

@@ -1,7 +1,6 @@
 package dev.zm.rankup.reward;
 
 import dev.zm.rankup.zMRankup;
-import dev.zm.rankup.api.RewardFactory;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
@@ -10,6 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 public class RewardRegistry {
+
+    @FunctionalInterface
+    public interface RewardFactory {
+        Reward create(String id, ConfigurationSection config);
+    }
 
     private final zMRankup plugin;
     private final Map<String, RewardFactory> factories = new HashMap<>();

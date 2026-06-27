@@ -26,10 +26,6 @@ public class RankManager {
         this.plugin = plugin;
     }
 
-    public void loadRanks() {
-        // No longer used, systems are loaded by SystemManager
-    }
-
     public Rank getRank(String id) {
         RankupSystem def = plugin.getSystemManager().getDefaultSystem();
         return def != null ? def.getRank(id) : null;
@@ -46,10 +42,12 @@ public class RankManager {
     }
 
     public Rank getCurrentRank(RankupSystem system, Player player) {
-        if (system == null) return null;
+        if (system == null)
+            return null;
         PlayerData data = plugin.getPlayerDataCache().getOrCreate(player.getUniqueId());
         String rankId = data.getCurrentRankId(system.getId());
-        if (rankId == null) return null;
+        if (rankId == null)
+            return null;
         return system.getRank(rankId);
     }
 
@@ -59,7 +57,8 @@ public class RankManager {
     }
 
     public Rank getNextRank(RankupSystem system, Player player) {
-        if (system == null) return null;
+        if (system == null)
+            return null;
         Rank current = getCurrentRank(system, player);
         if (current == null) {
             List<Rank> all = system.getAllRanks();
@@ -68,7 +67,8 @@ public class RankManager {
 
         List<Rank> all = system.getAllRanks();
         int idx = all.indexOf(current);
-        if (idx < 0 || idx + 1 >= all.size()) return null;
+        if (idx < 0 || idx + 1 >= all.size())
+            return null;
         return all.get(idx + 1);
     }
 
@@ -88,7 +88,8 @@ public class RankManager {
     }
 
     public int rankupToMax(RankupSystem system, Player player) {
-        if (system == null) return 0;
+        if (system == null)
+            return 0;
         int count = 0;
         for (int i = 0; i < 64; i++) {
             Rank next = getNextRank(system, player);
@@ -113,7 +114,8 @@ public class RankManager {
     }
 
     public boolean attemptRankup(RankupSystem system, Player player) {
-        if (system == null) return false;
+        if (system == null)
+            return false;
         Rank next = getNextRank(system, player);
         if (next == null) {
             plugin.getMessageManager().send(player, "rankup-max");
@@ -123,7 +125,8 @@ public class RankManager {
         Rank current = getCurrentRank(system, player);
         RankupEvent event = new RankupEvent(player, current, next);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) return false;
+        if (event.isCancelled())
+            return false;
 
         RankProgress progress = next.getProgress(player);
         if (!progress.isComplete()) {
@@ -148,6 +151,11 @@ public class RankManager {
         data.setCurrentRankId(system.getId(), next.getId());
         data.incrementRankups();
         data.setLastRankupTime(System.currentTimeMillis());
+
+        if (system.getTargetSystemId() != null && !system.getTargetSystemId().isEmpty()) {
+            data.setCurrentRankId(system.getTargetSystemId(), null);
+        }
+
         plugin.getPlayerDataCache().save(player.getUniqueId());
         if (plugin.getPermissionManager() != null) {
             plugin.getPermissionManager().refreshPlayer(player);
@@ -164,10 +172,13 @@ public class RankManager {
         plugin.getMessageManager().send(player, context, "rankup-success", "rank", next.getDisplayName());
 
         if (plugin.getConfigManager().isTitlesEnabled()) {
-            ConfigurationSection titleSection = plugin.getConfigManager().getConfig().getConfigurationSection("titles.rankup-success");
+            ConfigurationSection titleSection = plugin.getConfigManager().getConfig()
+                    .getConfigurationSection("titles.rankup-success");
             if (titleSection != null) {
-                String title = plugin.getMessageManager().replacePlaceholders(player, context, titleSection.getString("title", ""), "rank", next.getDisplayName());
-                String subtitle = plugin.getMessageManager().replacePlaceholders(player, context, titleSection.getString("subtitle", ""), "rank", next.getDisplayName());
+                String title = plugin.getMessageManager().replacePlaceholders(player, context,
+                        titleSection.getString("title", ""), "rank", next.getDisplayName());
+                String subtitle = plugin.getMessageManager().replacePlaceholders(player, context,
+                        titleSection.getString("subtitle", ""), "rank", next.getDisplayName());
                 int fadeIn = titleSection.getInt("fade-in", 10);
                 int stay = titleSection.getInt("stay", 40);
                 int fadeOut = titleSection.getInt("fade-out", 10);
@@ -188,21 +199,27 @@ public class RankManager {
     }
 
     public boolean forceRankup(RankupSystem system, Player player, Rank rank) {
-        if (system == null || rank == null) return false;
+        if (system == null || rank == null)
+            return false;
         PlayerData data = plugin.getPlayerDataCache().getOrCreate(player.getUniqueId());
         Rank oldRank = getCurrentRank(system, player);
         data.setCurrentRankId(system.getId(), rank.getId());
         data.incrementRankups();
         data.setLastRankupTime(System.currentTimeMillis());
+
+        if (system.getTargetSystemId() != null && !system.getTargetSystemId().isEmpty()) {
+            data.setCurrentRankId(system.getTargetSystemId(), null);
+        }
+
         plugin.getPlayerDataCache().save(player.getUniqueId());
         if (plugin.getPermissionManager() != null) {
             plugin.getPermissionManager().refreshPlayer(player);
         }
-        
+
         PlaceholderContext context = PlaceholderContext.withPosition(rank.getListPosition());
         RewardExecutor.executeAll(player, rank.getRewards(), context);
         RewardExecutor.executeCommands(player, rank.getSuccessActions(), context);
-        
+
         RankupSuccessEvent event = new RankupSuccessEvent(player, oldRank, rank, rank.getRewards());
         Bukkit.getPluginManager().callEvent(event);
         return true;

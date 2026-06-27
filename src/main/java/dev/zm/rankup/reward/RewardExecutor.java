@@ -14,7 +14,8 @@ public class RewardExecutor {
     }
 
     public static void execute(Player player, Reward reward, PlaceholderContext context) {
-        if (reward == null) return;
+        if (reward == null)
+            return;
         executeCommands(player, reward.getCommands(), context);
     }
 
@@ -23,7 +24,8 @@ public class RewardExecutor {
     }
 
     public static void executeCommands(Player player, List<String> commands, PlaceholderContext context) {
-        if (commands == null || commands.isEmpty()) return;
+        if (commands == null || commands.isEmpty())
+            return;
 
         Runnable task = () -> {
             for (String command : commands) {
@@ -33,8 +35,7 @@ public class RewardExecutor {
                         command,
                         "player", player.getName(),
                         "player_name", player.getName(),
-                        "player_uuid", player.getUniqueId().toString()
-                );
+                        "player_uuid", player.getUniqueId().toString());
 
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsedCommand);
             }
@@ -52,7 +53,8 @@ public class RewardExecutor {
     }
 
     public static void executeAll(Player player, List<Reward> rewards, PlaceholderContext context) {
-        if (rewards == null || rewards.isEmpty()) return;
+        if (rewards == null || rewards.isEmpty())
+            return;
         for (Reward reward : rewards) {
             execute(player, reward, context);
         }

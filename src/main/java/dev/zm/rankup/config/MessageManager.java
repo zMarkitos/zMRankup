@@ -8,7 +8,6 @@ import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-
 public class MessageManager {
 
     private final zMRankup plugin;
@@ -22,11 +21,14 @@ public class MessageManager {
     }
 
     public void send(CommandSender sender, PlaceholderContext context, String messageKey, String... replacements) {
-        if (sender == null) return;
+        if (sender == null)
+            return;
         String message = plugin.getConfigManager().getLangMessage(messageKey);
-        if (message == null || message.isBlank()) return;
+        if (message == null || message.isBlank())
+            return;
 
-        String fullMessage = replacePlaceholders(sender instanceof Player player ? player : null, context, message, replacements);
+        String fullMessage = replacePlaceholders(sender instanceof Player player ? player : null, context, message,
+                replacements);
         sender.sendMessage(ColorUtil.parse(fullMessage));
     }
 
@@ -35,8 +37,10 @@ public class MessageManager {
     }
 
     public void sendRaw(CommandSender sender, PlaceholderContext context, String text, String... replacements) {
-        if (sender == null || text == null || text.isBlank()) return;
-        String fullMessage = replacePlaceholders(sender instanceof Player player ? player : null, context, text, replacements);
+        if (sender == null || text == null || text.isBlank())
+            return;
+        String fullMessage = replacePlaceholders(sender instanceof Player player ? player : null, context, text,
+                replacements);
         sender.sendMessage(ColorUtil.parse(fullMessage));
     }
 
@@ -44,21 +48,22 @@ public class MessageManager {
         sendTitle(player, PlaceholderContext.empty(), titleText, subtitleText, fadeIn, stay, fadeOut);
     }
 
-    public void sendTitle(Player player, PlaceholderContext context, String titleText, String subtitleText, int fadeIn, int stay, int fadeOut) {
+    public void sendTitle(Player player, PlaceholderContext context, String titleText, String subtitleText, int fadeIn,
+            int stay, int fadeOut) {
         Component title = ColorUtil.parse(replacePlaceholders(player, context, titleText));
         Component subtitle = ColorUtil.parse(replacePlaceholders(player, context, subtitleText));
         net.kyori.adventure.title.Title.Times times = net.kyori.adventure.title.Title.Times.times(
                 java.time.Duration.ofMillis(fadeIn * 50L),
                 java.time.Duration.ofMillis(stay * 50L),
-                java.time.Duration.ofMillis(fadeOut * 50L)
-        );
+                java.time.Duration.ofMillis(fadeOut * 50L));
         net.kyori.adventure.title.Title adventureTitle = net.kyori.adventure.title.Title.title(title, subtitle, times);
         player.showTitle(adventureTitle);
     }
 
     public void playSound(Player player, String soundKey) {
         String soundName = plugin.getConfigManager().getSound(soundKey);
-        if (soundName == null || soundName.isEmpty()) return;
+        if (soundName == null || soundName.isEmpty())
+            return;
 
         try {
             Sound sound = Sound.valueOf(soundName.toUpperCase());
@@ -75,7 +80,8 @@ public class MessageManager {
     }
 
     public void sendActionBar(Player player, PlaceholderContext context, String text) {
-        if (text == null || text.isBlank()) return;
+        if (text == null || text.isBlank())
+            return;
         String parsed = replacePlaceholders(player, context, text);
         player.sendActionBar(ColorUtil.parse(parsed));
     }
@@ -85,7 +91,13 @@ public class MessageManager {
     }
 
     public String replacePlaceholders(Player player, PlaceholderContext context, String text, String... replacements) {
-        if (text == null) return null;
+        return replacePlaceholders(player, context, true, text, replacements);
+    }
+
+    public String replacePlaceholders(Player player, PlaceholderContext context, boolean applyPlaceholderApi,
+            String text, String... replacements) {
+        if (text == null)
+            return null;
 
         for (int i = 0; i < replacements.length - 1; i += 2) {
             String key = replacements[i];
@@ -107,7 +119,7 @@ public class MessageManager {
             }
         }
 
-        if (player != null && Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+        if (applyPlaceholderApi && player != null && Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             text = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, text);
         }
 

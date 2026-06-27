@@ -6,8 +6,8 @@
 # %zmrankups_<id-list>_<position>%
 #
 # Examples:
-# %zmrankups_rewards_1%
-# %zmrankups_rewards_2%
+# %zmrankups_rankup-rewards_1%
+# %zmrankups_rewards-playtime_2%
 # %zmrankups_color-system_4%
 #
 # Positions start at 1.
@@ -24,17 +24,17 @@ lists:
     id: rewards-rankup
     default: "&cN/A"
     values:
-      - "&fLlave &8→ &#00E40A&lC&#20E72A&lO&#40EA49&lM&#60EE69&lÚ&#A0F4A8&lN &fx1"
-      - "&fLlave &8→ &#2891FC&lV&#3D95FC&lO&#5299FC&lT&#679DFB&lE &fx1"
-      - "&fLlave &8→ &#9528FC&lÉ&#9332FA&lP&#913CF9&lI&#8F46F7&lC&#8B5AF4&lA &fx1"
+      - "&fKey &8→ &#00E40A&lC&#20E72A&lO&#40EA49&lM&#60EE69&lÚ&#A0F4A8&lN &fx1"
+      - "&fKey &8→ &#2891FC&lV&#3D95FC&lO&#5299FC&lT&#679DFB&lE &fx1"
+      - "&fKey &8→ &#9528FC&lÉ&#9332FA&lP&#913CF9&lI&#8F46F7&lC&#8B5AF4&lA &fx1"
 
   playtime-rewards:
     id: rewards-playtime
     default: "&cN/A"
     values:
-      - "&fLlave &8→ &#00E40A&lC&#20E72A&lO&#40EA49&lM&#60EE69&lÚ&#A0F4A8&lN &fx1"
-      - "&fLlave &8→ &#2891FC&lV&#3D95FC&lO&#5299FC&lT&#679DFB&lE &fx1"
-      - "&fLlave &8→ &#9528FC&lÉ&#9332FA&lP&#913CF9&lI&#8F46F7&lC&#8B5AF4&lA &fx1"
+      - "&fKey &8→ &#00E40A&lC&#20E72A&lO&#40EA49&lM&#60EE69&lÚ&#A0F4A8&lN &fx1"
+      - "&fKey &8→ &#2891FC&lV&#3D95FC&lO&#5299FC&lT&#679DFB&lE &fx1"
+      - "&fKey &8→ &#9528FC&lÉ&#9332FA&lP&#913CF9&lI&#8F46F7&lC&#8B5AF4&lA &fx1"
 
   color-system:
     id: color-system
@@ -47,3 +47,12 @@ lists:
       - "&#59D7FF"
       - "&#9B4DFF"
       - "&#FFB0E9"
+      - "&#f9a23e"
+      - "&#f9a23e"
+  prestigio-rankups:
+    id: prestigio-rankups
+    default: "&cN/A"
+    values:
+      - "&fCommon Key x1"
+      - "&fRankup Key x1"
+      - "&fTemporary /fly access (1 day)"

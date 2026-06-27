@@ -22,8 +22,16 @@ public class RankupSystem {
     private final String menuTitle;
     private final int menuRows;
     private final String colorSystem;
+    private final String targetSystemId;
     private final List<String> openCommands;
     private final boolean registerCommand;
+    private final boolean prestigeEnabled;
+    private final String prestigeMenuTitle;
+    private final String prestigeDisplayName;
+    private final String prestigeFormat;
+    private final String prestigeIcon;
+    private final String prestigeStartRankId;
+    private final boolean prestigeResetRank;
 
     public RankupSystem(String id, FileConfiguration config) {
         this.id = id;
@@ -38,7 +46,34 @@ public class RankupSystem {
             cmds.add(config.getString("open_command"));
         }
         this.openCommands = cmds;
+        
+        String targetSystemRaw = config.getString("system");
+        if (targetSystemRaw != null && targetSystemRaw.endsWith(".yml")) {
+            this.targetSystemId = targetSystemRaw.replace(".yml", "");
+        } else {
+            this.targetSystemId = targetSystemRaw;
+        }
+        
         this.registerCommand = config.getBoolean("register_command", true);
+
+        ConfigurationSection prestigeSection = config.getConfigurationSection("prestige");
+        this.prestigeEnabled = prestigeSection == null || prestigeSection.getBoolean("enabled", true);
+        this.prestigeMenuTitle = prestigeSection != null
+                ? prestigeSection.getString("menu-title", "&dPrestigios de " + id + " ({page}/{max_page})")
+                : "&dPrestigios de " + id + " ({page}/{max_page})";
+        this.prestigeDisplayName = prestigeSection != null
+                ? prestigeSection.getString("display-name", "&dPrestigio")
+                : "&dPrestigio";
+        this.prestigeFormat = prestigeSection != null
+                ? prestigeSection.getString("format", "P{level}")
+                : "P{level}";
+        this.prestigeIcon = prestigeSection != null
+                ? prestigeSection.getString("material", "NETHER_STAR")
+                : "NETHER_STAR";
+        this.prestigeStartRankId = prestigeSection != null
+                ? normalizePrestigeStartRank(prestigeSection.getString("start-rank", null))
+                : null;
+        this.prestigeResetRank = prestigeSection == null || prestigeSection.getBoolean("reset-rank", true);
         
         loadTemplates();
     }
@@ -52,12 +87,12 @@ public class RankupSystem {
             if (tmpl == null) continue;
 
             String mat = tmpl.getString("material", "STONE");
-
             String name = tmpl.getString("display_name", tmpl.getString("name", key));
             List<String> lore = tmpl.getStringList("lore");
             boolean glow = tmpl.getBoolean("glow", false);
+            int slot = tmpl.getInt("slot", -1);
 
-            templates.put(key, new TemplateData(mat, name, lore, glow));
+            templates.put(key, new TemplateData(mat, name, lore, glow, slot));
         }
     }
 
@@ -86,12 +121,44 @@ public class RankupSystem {
         return colorSystem;
     }
 
+    public String getTargetSystemId() {
+        return targetSystemId;
+    }
+
     public List<String> getOpenCommands() {
         return openCommands;
     }
 
     public boolean isRegisterCommand() {
         return registerCommand;
+    }
+
+    public boolean isPrestigeEnabled() {
+        return prestigeEnabled;
+    }
+
+    public String getPrestigeMenuTitle() {
+        return prestigeMenuTitle;
+    }
+
+    public String getPrestigeDisplayName() {
+        return prestigeDisplayName;
+    }
+
+    public String getPrestigeFormat() {
+        return prestigeFormat;
+    }
+
+    public String getPrestigeIcon() {
+        return prestigeIcon;
+    }
+
+    public String getPrestigeStartRankId() {
+        return prestigeStartRankId;
+    }
+
+    public boolean isPrestigeResetRank() {
+        return prestigeResetRank;
     }
 
     public Rank getRank(String rankId) {
@@ -118,5 +185,13 @@ public class RankupSystem {
             max = Math.max(max, rank.getPage());
         }
         return max;
+    }
+
+    private String normalizePrestigeStartRank(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

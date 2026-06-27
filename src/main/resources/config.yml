@@ -16,27 +16,34 @@
 # ============================================================
 
 # Do not Modify.
-config-version: 1
+config-version: 2
 
 # ============================================================
 # General Settings
 # ============================================================
 
 settings:
+
   # Prefix used in plugin messages.
   prefix: "<b><gradient:#FFDC12:#EAC800:#FFDC12>zMRankup</gradient></b> <dark_gray>|</dark_gray> "
 
   # Language file to load.
   # Available: EN, ES
-  language: ES
+  language: EN
 
   # Enables additional console logging.
   # Useful for troubleshooting.
   debug: false
 
   # Storage provider.
-  # Available: H2
-  storage: H2
+  # Available: SQLITE
+  storage: SQLITE
+
+  # Aliases to open the Master Prestige Menu (prestiges.yml).
+  prestige-commands:
+    - prestiges
+    - prestige
+    - prestigio
 
 # ============================================================
 # Auto Rankup
@@ -74,6 +81,13 @@ titles:
     stay: 40
     fade-out: 10
 
+  prestige-success:
+    title: "<b><gradient:#FF1616:#F86767:#FF1616>Prestige</gradient></b>"
+    subtitle: "<green>You are now {prestige}"
+    fade-in: 10
+    stay: 40
+    fade-out: 10
+
 # ============================================================
 # Sounds
 # ============================================================
@@ -88,10 +102,15 @@ sounds:
   # Played when a rankup fails.
   rankup-fail: ENTITY_VILLAGER_NO
 
+  prestige-success: UI_TOAST_CHALLENGE_COMPLETE
+
   # Menu interaction sounds.
   menu-open: BLOCK_CHEST_OPEN
   menu-click: UI_BUTTON_CLICK
   page-turn: ITEM_BOOK_PAGE_TURN
+
+prestige:
+  close-menu-on-success: true
 
 # ============================================================
 # Number Formatting

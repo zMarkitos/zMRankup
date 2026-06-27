@@ -48,7 +48,8 @@ public class PermissionManager {
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         ConfigurationSection groupsSection = config.getConfigurationSection("groups");
         if (groupsSection == null) {
-            plugin.getLogger().warning("[Permissions] No 'groups' section found in permissions.yml. All internal permission groups will be skipped.");
+            plugin.getLogger().warning(
+                    "[Permissions] No 'groups' section found in permissions.yml. All internal permission groups will be skipped.");
             return;
         }
 
@@ -113,7 +114,8 @@ public class PermissionManager {
             return;
         }
 
-        PermissionAttachment attachment = attachments.computeIfAbsent(player.getUniqueId(), uuid -> player.addAttachment(plugin));
+        PermissionAttachment attachment = attachments.computeIfAbsent(player.getUniqueId(),
+                uuid -> player.addAttachment(plugin));
         clearAttachment(attachment);
 
         PlayerData data = plugin.getPlayerDataCache().get(player.getUniqueId());
@@ -206,7 +208,8 @@ public class PermissionManager {
 
             ResolvedPermissionGroup group = resolvedGroups.get(groupId);
             if (group == null) {
-                warn("Rank '" + rank.getId() + "' in system '" + system.getId() + "' references missing or invalid permission group '" + groupId + "'.");
+                warn("Rank '" + rank.getId() + "' in system '" + system.getId()
+                        + "' references missing or invalid permission group '" + groupId + "'.");
                 continue;
             }
 
@@ -299,7 +302,8 @@ public class PermissionManager {
                 permissions.put(permission, positive);
             }
 
-            ResolvedPermissionGroup resolved = new ResolvedPermissionGroup(groupId, Collections.unmodifiableMap(permissions));
+            ResolvedPermissionGroup resolved = new ResolvedPermissionGroup(groupId,
+                    Collections.unmodifiableMap(permissions));
             resolvedGroups.put(groupId, resolved);
             return resolved;
         } finally {

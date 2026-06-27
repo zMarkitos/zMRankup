@@ -4,9 +4,9 @@ import dev.zm.rankup.zMRankup;
 import dev.zm.rankup.rank.Rank;
 import dev.zm.rankup.rank.RankManager;
 import dev.zm.rankup.storage.PlayerData;
+import dev.zm.rankup.system.RankupSystem;
 import dev.zm.rankup.util.ColorUtil;
-import dev.zm.rankup.util.NumberFormatter;
-import dev.zm.rankup.util.ProgressBar;
+import dev.zm.rankup.util.FormatUtil;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -47,19 +47,21 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer offlinePlayer, @NotNull String params) {
-        if (offlinePlayer == null || !offlinePlayer.isOnline()) return "";
+        if (offlinePlayer == null || !offlinePlayer.isOnline())
+            return "";
         Player player = offlinePlayer.getPlayer();
-        if (player == null) return "";
+        if (player == null)
+            return "";
 
         RankManager rm = plugin.getRankManager();
         PlayerData data = plugin.getPlayerDataCache().getOrCreate(player.getUniqueId());
 
         String paramLower = params.toLowerCase();
-        
-        dev.zm.rankup.system.RankupSystem system = plugin.getSystemManager().getDefaultSystem();
+
+        RankupSystem system = plugin.getSystemManager().getDefaultSystem();
         String metric = paramLower;
 
-        for (dev.zm.rankup.system.RankupSystem sys : plugin.getSystemManager().getAllSystems()) {
+        for (RankupSystem sys : plugin.getSystemManager().getAllSystems()) {
             String prefix = sys.getId() + "_";
             if (paramLower.startsWith(prefix)) {
                 system = sys;
@@ -68,17 +70,33 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             }
         }
 
-        if (system == null) return "";
+        if (system == null)
+            return "";
+
+        // For prestige metrics, if the resolved system has no prestige enabled,
+        // fall back to the first prestige-enabled system automatically.
+        boolean isPrestigeMetric = metric.startsWith("prestige") || metric.equals("can_prestige");
+        RankupSystem prestigeSystem = system;
+        if (isPrestigeMetric && !system.isPrestigeEnabled()) {
+            prestigeSystem = plugin.getSystemManager().getAllSystems().stream()
+                    .filter(RankupSystem::isPrestigeEnabled)
+                    .findFirst()
+                    .orElse(system);
+        }
 
         return switch (metric) {
             case "rank" -> {
                 Rank current = rm.getCurrentRank(system, player);
-                yield current != null ? dev.zm.rankup.util.ColorUtil.toLegacy(current.getDisplayName()) : "Ninguno";
+                String none = plugin.getConfigManager().getLangMessage("placeholder-none");
+                if (none == null || none.isEmpty())
+                    none = "Ninguno";
+                yield current != null ? ColorUtil.toLegacy(current.getDisplayName()) : none;
             }
-            case "rank_id" -> data.getCurrentRankId(system.getId()) != null ? data.getCurrentRankId(system.getId()) : "none";
+            case "rank_id" ->
+                data.getCurrentRankId(system.getId()) != null ? data.getCurrentRankId(system.getId()) : "none";
             case "next_rank" -> {
                 Rank next = rm.getNextRank(system, player);
-                yield next != null ? dev.zm.rankup.util.ColorUtil.toLegacy(next.getDisplayName()) : "Máximo";
+                yield next != null ? ColorUtil.toLegacy(next.getDisplayName()) : "Máximo";
             }
             case "next_rank_id" -> {
                 Rank next = rm.getNextRank(system, player);
@@ -86,32 +104,54 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             }
             case "progress" -> {
                 Rank next = rm.getNextRank(system, player);
-                if (next == null) yield "100.0";
-                yield NumberFormatter.formatPercentage(next.getProgress(player).getOverallProgress() * 100);
+                if (next == null)
+                    yield "100.0";
+                yield FormatUtil.formatPercentage(next.getProgress(player).getOverallProgress() * 100);
             }
             case "progress_bar" -> {
                 Rank next = rm.getNextRank(system, player);
-                if (next == null) {
-                    yield ColorUtil.toLegacy(ProgressBar.createDefault(
-                            1.0,
-                            plugin.getConfigManager().getProgressBarLength(),
-                            plugin.getConfigManager().getProgressBarFilledChar(),
-                            plugin.getConfigManager().getProgressBarEmptyChar(),
-                            plugin.getConfigManager().getProgressBarFilledColor(),
-                            plugin.getConfigManager().getProgressBarEmptyColor()
-                    ));
-                }
-                yield ColorUtil.toLegacy(ProgressBar.createDefault(
-                        next.getProgress(player).getOverallProgress(),
+                double pct = next == null ? 1.0 : next.getProgress(player).getOverallProgress();
+                yield ColorUtil.toLegacy(FormatUtil.createDefaultProgressBar(
+                        pct,
                         plugin.getConfigManager().getProgressBarLength(),
                         plugin.getConfigManager().getProgressBarFilledChar(),
                         plugin.getConfigManager().getProgressBarEmptyChar(),
                         plugin.getConfigManager().getProgressBarFilledColor(),
-                        plugin.getConfigManager().getProgressBarEmptyColor()
-                ));
+                        plugin.getConfigManager().getProgressBarEmptyColor()));
             }
-            case "total_rankups" -> String.valueOf(data.getTotalRankups()); // Total across all systems?
+            case "total_rankups" -> String.valueOf(data.getTotalRankups());
             case "total_ranks" -> String.valueOf(system.getAllRanks().size());
+
+            case "prestige" -> plugin.getPrestigeManager() != null
+                    ? ColorUtil.toLegacy(plugin.getPrestigeManager().formatPrestige(
+                            prestigeSystem, data.getPrestigeLevel(prestigeSystem.getId())))
+                    : String.valueOf(data.getPrestigeLevel(prestigeSystem.getId()));
+
+            case "prestige_level" -> String.valueOf(data.getPrestigeLevel(prestigeSystem.getId()));
+
+            case "next_prestige" -> plugin.getPrestigeManager() != null
+                    ? ColorUtil.toLegacy(plugin.getPrestigeManager().formatPrestige(prestigeSystem,
+                            data.getPrestigeLevel(prestigeSystem.getId()) + 1))
+                    : "P" + (data.getPrestigeLevel(prestigeSystem.getId()) + 1);
+
+            case "can_prestige" ->
+                plugin.getPrestigeManager() != null
+                        && plugin.getPrestigeManager().canPrestige(player, prestigeSystem) ? "yes" : "no";
+
+            case "prestige_max" -> String.valueOf(prestigeSystem.getAllRanks().size());
+
+            case "prestige_next_level" -> {
+                int cur = data.getPrestigeLevel(prestigeSystem.getId());
+                int max = prestigeSystem.getAllRanks().size();
+                yield cur >= max ? "MAX" : String.valueOf(cur + 1);
+            }
+
+            case "prestige_progress" -> {
+                int cur = data.getPrestigeLevel(prestigeSystem.getId());
+                int max = prestigeSystem.getAllRanks().size();
+                yield cur + "/" + max;
+            }
+
             default -> null;
         };
     }

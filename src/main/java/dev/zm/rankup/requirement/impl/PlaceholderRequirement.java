@@ -1,7 +1,7 @@
 package dev.zm.rankup.requirement.impl;
 
 import dev.zm.rankup.requirement.Requirement;
-import dev.zm.rankup.util.NumberFormatter;
+import dev.zm.rankup.util.FormatUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -69,7 +69,7 @@ public class PlaceholderRequirement extends Requirement {
         if (comparison == null || comparison.numericLeft == null || comparison.numericRight == null) {
             return "";
         }
-        return dev.zm.rankup.util.NumberFormatter.formatShort(comparison.numericLeft) + "/" + dev.zm.rankup.util.NumberFormatter.formatShort(comparison.numericRight);
+        return dev.zm.rankup.util.FormatUtil.formatShort(comparison.numericLeft) + "/" + dev.zm.rankup.util.FormatUtil.formatShort(comparison.numericRight);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class PlaceholderRequirement extends Requirement {
         String friendlyName = extractFriendlyName();
         Comparison comparison = resolve(null);
         if (comparison != null && comparison.numericRight != null) {
-            return friendlyName + ": " + NumberFormatter.formatShort(comparison.numericRight);
+            return friendlyName + ": " + FormatUtil.formatShort(comparison.numericRight);
         }
         if (comparison != null && comparison.right != null) {
             return friendlyName + ": " + comparison.right;

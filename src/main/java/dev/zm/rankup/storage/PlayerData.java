@@ -13,16 +13,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerData {
 
-    private static final Material[] TRACKED_BLOCK_MATERIALS = Arrays.stream(Material.values())
-            .filter(Material::isBlock)
-            .toArray(Material[]::new);
-
     private UUID uuid;
     private Map<String, String> systemRanks;
     private int totalRankups;
     private long lastRankupTime;
     private Map<String, Long> mobKills;
     private Map<String, Long> blocksMined;
+    private Map<String, Integer> prestiges;
     private long totalBlocksMined;
     private long totalMobKills;
     private long playerKills;
@@ -34,6 +31,7 @@ public class PlayerData {
         this.systemRanks = new ConcurrentHashMap<>();
         this.mobKills = new ConcurrentHashMap<>();
         this.blocksMined = new ConcurrentHashMap<>();
+        this.prestiges = new ConcurrentHashMap<>();
         this.dirty = false;
     }
 
@@ -104,6 +102,63 @@ public class PlayerData {
         this.dirty = true;
     }
 
+    public Map<String, Integer> getPrestiges() {
+        return prestiges;
+    }
+
+    public void setPrestiges(Map<String, Integer> prestiges) {
+        this.prestiges = prestiges;
+        this.dirty = true;
+    }
+
+    public int getPrestigeLevel(String systemId) {
+        if (systemId == null) {
+            return 0;
+        }
+        return prestiges.getOrDefault(systemId, 0);
+    }
+
+    public void setPrestigeLevel(String systemId, int level) {
+        if (systemId == null) {
+            return;
+        }
+        if (level <= 0) {
+            this.prestiges.remove(systemId);
+        } else {
+            this.prestiges.put(systemId, level);
+        }
+        this.dirty = true;
+    }
+
+    public void incrementPrestige(String systemId) {
+        if (systemId == null) {
+            return;
+        }
+        this.prestiges.put(systemId, getPrestigeLevel(systemId) + 1);
+        this.dirty = true;
+    }
+
+    public void decrementPrestige(String systemId) {
+        if (systemId == null) {
+            return;
+        }
+        int current = getPrestigeLevel(systemId);
+        if (current <= 1) {
+            this.prestiges.remove(systemId);
+        } else {
+            this.prestiges.put(systemId, current - 1);
+        }
+        this.dirty = true;
+    }
+
+    public void resetPrestige(String systemId) {
+        if (systemId == null) {
+            return;
+        }
+        this.prestiges.remove(systemId);
+        this.dirty = true;
+    }
+
     public long getTotalBlocksMined() {
         return totalBlocksMined;
     }
@@ -148,19 +203,29 @@ public class PlayerData {
         this.dirty = false;
     }
 
-    // Increment methods
+
 
     public void incrementRankups() {
         this.totalRankups++;
         this.dirty = true;
     }
 
+    /**
+     * Increments the specific mob kill count, and also automatically
+     * increments the totalMobKills count. Do not call incrementTotalMobKills
+     * in addition to this method to avoid double-counting.
+     */
     public void incrementMobKills(String mobType, long amount) {
         this.mobKills.put(mobType, this.mobKills.getOrDefault(mobType, 0L) + amount);
         this.totalMobKills += amount;
         this.dirty = true;
     }
 
+    /**
+     * Increments the specific block mined count, and also automatically
+     * increments the totalBlocksMined count. Do not call incrementTotalBlocksMined
+     * in addition to this method to avoid double-counting.
+     */
     public void incrementBlocksMined(String blockType, long amount) {
         this.blocksMined.put(blockType, this.blocksMined.getOrDefault(blockType, 0L) + amount);
         this.totalBlocksMined += amount;
@@ -187,7 +252,7 @@ public class PlayerData {
         this.dirty = true;
     }
 
-    // specific getters
+
 
     public long getSpecificMobKills(String mobType) {
         return mobKills.getOrDefault(mobType, 0L);
@@ -211,20 +276,22 @@ public class PlayerData {
         syncTrackedBlocksMined(player);
     }
 
-    public static long getLiveTotalBlocksMined(Player player) {
+    public long getLiveTotalBlocksMined(Player player) {
         if (player == null) {
             return 0L;
         }
 
         long total = 0L;
-        for (Material material : TRACKED_BLOCK_MATERIALS) {
-            try {
-                total += player.getStatistic(Statistic.MINE_BLOCK, material);
-            } catch (IllegalArgumentException ignored) {
-                // Some materials are not backed by a mining statistic on every server version.
+        for (String materialName : blocksMined.keySet()) {
+            Material material = Material.matchMaterial(materialName);
+            if (material != null && material.isBlock()) {
+                try {
+                    total += player.getStatistic(Statistic.MINE_BLOCK, material);
+                } catch (IllegalArgumentException ignored) {
+                }
             }
         }
-        return total;
+        return total > this.totalBlocksMined ? total : this.totalBlocksMined;
     }
 
     void replaceWith(PlayerData other) {
@@ -238,6 +305,7 @@ public class PlayerData {
         this.lastRankupTime = other.lastRankupTime;
         this.mobKills = new ConcurrentHashMap<>(other.mobKills);
         this.blocksMined = new ConcurrentHashMap<>(other.blocksMined);
+        this.prestiges = new ConcurrentHashMap<>(other.prestiges);
         this.totalBlocksMined = other.totalBlocksMined;
         this.totalMobKills = other.totalMobKills;
         this.playerKills = other.playerKills;
@@ -250,11 +318,14 @@ public class PlayerData {
             return;
         }
 
-        this.systemRanks.putAll(other.systemRanks);
+        for (java.util.Map.Entry<String, String> entry : other.systemRanks.entrySet()) {
+            this.systemRanks.putIfAbsent(entry.getKey(), entry.getValue());
+        }
         this.totalRankups += other.totalRankups;
         this.lastRankupTime = Math.max(this.lastRankupTime, other.lastRankupTime);
         mergeLongMap(this.mobKills, other.mobKills);
         mergeLongMap(this.blocksMined, other.blocksMined);
+        mergeIntMap(this.prestiges, other.prestiges);
         this.totalBlocksMined += other.totalBlocksMined;
         this.totalMobKills += other.totalMobKills;
         this.playerKills += other.playerKills;
@@ -291,6 +362,12 @@ public class PlayerData {
     private void mergeLongMap(Map<String, Long> target, Map<String, Long> source) {
         for (Entry<String, Long> entry : source.entrySet()) {
             target.put(entry.getKey(), target.getOrDefault(entry.getKey(), 0L) + entry.getValue());
+        }
+    }
+
+    private void mergeIntMap(Map<String, Integer> target, Map<String, Integer> source) {
+        for (Entry<String, Integer> entry : source.entrySet()) {
+            target.merge(entry.getKey(), entry.getValue(), Math::max);
         }
     }
 

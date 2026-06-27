@@ -81,19 +81,22 @@ public final class ColorUtil {
     }
 
     public static String stripColor(String text) {
-        if (text == null) return null;
+        if (text == null)
+            return null;
         Component component = parse(text);
         return PlainTextComponentSerializer.plainText().serialize(component);
     }
 
     public static String toLegacy(String text) {
-        if (text == null || text.isEmpty()) return "";
+        if (text == null || text.isEmpty())
+            return "";
         Component component = parse(text);
         return LEGACY_AMPERSAND.serialize(component);
     }
 
     public static String toLegacy(Component component) {
-        if (component == null) return "";
+        if (component == null)
+            return "";
         return LEGACY_AMPERSAND.serialize(component);
     }
 }

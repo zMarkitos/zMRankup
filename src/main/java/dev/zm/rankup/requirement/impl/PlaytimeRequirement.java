@@ -1,7 +1,7 @@
 package dev.zm.rankup.requirement.impl;
 
 import dev.zm.rankup.requirement.Requirement;
-import dev.zm.rankup.util.NumberFormatter;
+import dev.zm.rankup.util.FormatUtil;
 
 import org.bukkit.Statistic;
 import org.bukkit.configuration.ConfigurationSection;
@@ -41,13 +41,13 @@ public class PlaytimeRequirement extends Requirement {
     @Override
     public String getProgressDisplay(Player player) {
         String unit = isHours ? "h" : "m";
-        return NumberFormatter.formatShort(getProgress(player)) + unit + "/" + NumberFormatter.formatShort(getRequired()) + unit;
+        return FormatUtil.formatShort(getProgress(player)) + unit + "/" + FormatUtil.formatShort(getRequired()) + unit;
     }
 
     @Override
     protected String getDefaultDisplay() {
         return isHours
-                ? lang("requirements.display.playtime_hours", "amount", NumberFormatter.formatShort(amount))
-                : lang("requirements.display.playtime_minutes", "amount", NumberFormatter.formatShort(amount));
+                ? lang("requirements.display.playtime_hours", "amount", FormatUtil.formatShort(amount))
+                : lang("requirements.display.playtime_minutes", "amount", FormatUtil.formatShort(amount));
     }
 }

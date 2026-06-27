@@ -1,7 +1,7 @@
 package dev.zm.rankup.requirement.impl;
 
 import dev.zm.rankup.requirement.Requirement;
-import dev.zm.rankup.util.NumberFormatter;
+import dev.zm.rankup.util.FormatUtil;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.Statistic;
@@ -33,6 +33,6 @@ public class DeathsRequirement extends Requirement {
 
     @Override
     protected String getDefaultDisplay() {
-        return lang("requirements.display.deaths", "amount", NumberFormatter.formatShort(amount));
+        return lang("requirements.display.deaths", "amount", FormatUtil.formatShort(amount));
     }
 }

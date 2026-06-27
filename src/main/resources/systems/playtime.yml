@@ -4,7 +4,7 @@
 # ============================================================
 
 # Title shown when the ranks menu is opened.
-menu_title: '&8&nTiempo Jugado ({page}/{max_page})&r'
+menu_title: '&8&nPlaytime ({page}/{max_page})&r'
 # Primary command that opens this menu.
 open_command:
 - menuplaytime
@@ -19,68 +19,68 @@ templates:
   # Template for ranks that are still locked.
   locked:
     material: RED_CANDLE
-    display_name: "&#FB3838⌚ &fTiempo de juego {rank_display}"
+    display_name: "&#FB3838⌚ &fPlaytime {rank_display}"
     lore:
       - ""
-      - "&#26c8f9✉ Información"
-      - " &8| &fRecibe recompensas extra"
-      - " &8| &fsolo por jugar el servidor."
+      - "&#26c8f9✉ Information"
+      - " &8| &fReceive extra rewards"
+      - " &8| &fjust by playing on the server."
       - ""
-      - "&#f9a23e⭐ Recompensas:"
+      - "&#f9a23e⭐ Rewards:"
       - "{rewards}"
       - ""
-      - "&#5BFB1A✎ Requisitos:"
+      - "&#5BFB1A✎ Requirements:"
       - "{requirements}"
       - ""
-      - "&#FE4224⌚ Progreso: &7&o({progress}%)"
+      - "&#FE4224⌚ Progress: &7&o({progress}%)"
       - "{progress_bar}"
       - ""
-      - "&#47FE24■ Necesitas el rango anterior"
+      - "&#47FE24■ You need the previous rank"
     glow: false
 
   # Template for the player's current rank.
   current:
     material: LIME_CANDLE
     glow: true
-    display_name: "&#FB3838⌚ &fTiempo de juego {rank_display}"
+    display_name: "&#FB3838⌚ &fPlaytime {rank_display}"
     lore:
       - ""
-      - "&#FF1616✉ Información"
-      - " &8| &fRecibe recompensas extra"
-      - " &8| &fsolo por jugar el servidor."
+      - "&#FF1616✉ Information"
+      - " &8| &fReceive extra rewards"
+      - " &8| &fjust by playing on the server."
       - ""
-      - "&#FF1616⭐ Recompensas:"
+      - "&#FF1616⭐ Rewards:"
       - "{rewards}"
       - ""
-      - "&#FF1616✎ Requisitos:"
+      - "&#FF1616✎ Requirements:"
       - "{requirements}"
       - ""
-      - "&#FE4224⌚ Progreso: &7&o({progress}%)"
+      - "&#FE4224⌚ Progress: &7&o({progress}%)"
       - "{progress_bar}"
       - ""
-      - "&#90FF4D■ Ya posees este rango"
+      - "&#90FF4D■ You already have this rank"
 
   # Template for the next rank the player can claim.
   available:
     material: YELLOW_CANDLE
     glow: true
-    display_name: "&#FB3838⌚ &fTiempo de juego {rank_display}"
+    display_name: "&#FB3838⌚ &fPlaytime {rank_display}"
     lore:
       - ""
-      - "&#26c8f9✉ Información"
-      - " &8| &fRecibe recompensas extra"
-      - " &8| &fsolo por jugar el servidor."
+      - "&#26c8f9✉ Information"
+      - " &8| &fReceive extra rewards"
+      - " &8| &fjust by playing on the server."
       - ""
-      - "&#f9a23e⭐ Recompensas:"
+      - "&#f9a23e⭐ Rewards:"
       - "{rewards}"
       - ""
-      - "&#5BFB1A✎ Requisitos:"
+      - "&#5BFB1A✎ Requirements:"
       - "{requirements}"
       - ""
-      - "&#FE4224⌚ Progreso: &7&o({progress}%)"
+      - "&#FE4224⌚ Progress: &7&o({progress}%)"
       - "{progress_bar}"
       - ""
-      - "&#FFF92C■ Haz clic para reclamar"
+      - "&#FFF92C■ Click to claim"
 
 # Menu decorations and navigation items.
 items:
@@ -99,56 +99,55 @@ items:
       enabled: true
       slot: 45
       material: ARROW
-      display_name: "&fNavegación &8→ &#FF1616&lATRÁS"
+      display_name: "&fNavigation &8→ &#FF1616&lBACK"
       lore:
         - ""
-        - " &8| &fRegresa a la página"
-        - " &8| &fanterior de rangos."
+        - " &8| &fReturn to the previous"
+        - " &8| &fpage of ranks."
         - ""
-        - "&#FF1616■ ¡Clic para volver!"
+        - "&#FF1616■ Click to go back!"
     next-page:
       enabled: true
       slot: 53
       material: ARROW
-      display_name: "&fNavegación &8→ &#FF1616&lSIGUIENTE"
+      display_name: "&fNavigation &8→ &#FF1616&lNEXT"
       lore:
         - ""
-        - " &8| &fAvanza a la siguiente"
-        - " &8| &fpágina de rangos."
+        - " &8| &fAdvance to the next"
+        - " &8| &fpage of ranks."
         - ""
-        - "&#FF1616■ ¡Clic para avanzar!"
+        - "&#FF1616■ Click to advance!"
     close:
       enabled: true
       slot: 49
       material: BARRIER
-      display_name: "&fNavegación &8→ &#FF1616&lCERRAR"
+      display_name: "&fNavigation &8→ &#FF1616&lCLOSE"
       lore:
         - ""
-        - " &8| &fCierra este menú"
-        - " &8| &fy vuelve al principal."
+        - " &8| &fClose this menu"
+        - " &8| &fand return to the main one."
         - ""
-        - "&#FF1616■ ¡Clic para cerrar!"
+        - "&#FF1616■ Click to close!"
       actions:
         - "[sound] UI_BUTTON_CLICK"
-        - "[message] <gray>Cerrando menú..."
+        - "[message] <gray>Closing menu..."
         - "[player_command] menu"
     # Static info item displayed near the top of the menu.
     info:
       enabled: true
       slot: 4
       material: BOOK
-      display_name: "&fServidor &8→ &#FF1616&lMI PERFIL"
+      display_name: "&fServer &8→ &#FF1616&lMY PROFILE"
       lore:
         - ""
-        - " &8| &fRango actual: %zmrankup_rank%"
-        - " &8| &fSiguiente rango: %zmrankup_next_rank%"
-        - " &8| &fProgreso: &a%zmrankup_progress%"
+        - " &8| &fCurrent rank: %zmrankup_playtime_rank%"
+        - " &8| &fNext rank: %zmrankup_playtime_next_rank%"
+        - " &8| &fProgress: &a%zmrankup_playtime_progress%"
         - ""
-        - " &8| &fPágina: &e{page}/{max_page}"
+        - " &8| &fPage: &e{page}/{max_page}"
         - ""
 
 ranks:
-  # ==================== FILA 1 - Patrón: RED, ORANGE, YELLOW, LIME, LIGHT_BLUE, PURPLE, PINK (slots 10-16) ====================
   1:
     material: RED_DYE
     display_rank: "&f#1"
@@ -162,8 +161,8 @@ ranks:
         amount: 1
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_2%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_2%"
       commands:
         - "crate key give {player} comun 1"
 
@@ -180,8 +179,8 @@ ranks:
         amount: 2
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_3%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_4%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_3%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_4%"
       commands:
         - "crate key give {player} epica 1"
 
@@ -198,8 +197,8 @@ ranks:
         amount: 3
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_5%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_5%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
       commands:
         - "crate key give {player} elite 1"
 
@@ -216,8 +215,8 @@ ranks:
         amount: 4
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_2%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_3%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_2%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_3%"
       commands:
         - "crate key give {player} estelar 1"
 
@@ -234,8 +233,8 @@ ranks:
         amount: 5
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_4%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_5%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_4%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_5%"
       commands:
         - "crate key give {player} comun 2"
 
@@ -252,8 +251,8 @@ ranks:
         amount: 6
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_2%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_2%"
       commands:
         - "crate key give {player} epica 2"
 
@@ -270,12 +269,11 @@ ranks:
         amount: 7
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_3%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_4%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_3%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_4%"
       commands:
         - "crate key give {player} elite 2"
 
-  # ==================== FILA 2 - Mismo patrón: RED, ORANGE, YELLOW, LIME, LIGHT_BLUE, PURPLE, PINK (slots 19-25) ====================
   8:
     material: RED_DYE
     display_rank: "&f#8"
@@ -289,8 +287,8 @@ ranks:
         amount: 8
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_5%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_5%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
       commands:
         - "crate key give {player} estelar 2"
 
@@ -307,8 +305,8 @@ ranks:
         amount: 9
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_2%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_3%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_2%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_3%"
       commands:
         - "crate key give {player} comun 3"
 
@@ -325,8 +323,8 @@ ranks:
         amount: 10
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_4%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_5%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_4%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_5%"
       commands:
         - "crate key give {player} epica 3"
 
@@ -343,8 +341,8 @@ ranks:
         amount: 11
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_2%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_2%"
       commands:
         - "crate key give {player} elite 3"
 
@@ -361,8 +359,8 @@ ranks:
         amount: 12
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_3%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_4%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_3%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_4%"
       commands:
         - "crate key give {player} estelar 3"
 
@@ -379,8 +377,8 @@ ranks:
         amount: 13
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_5%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_5%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
       commands:
         - "crate key give {player} comun 4"
 
@@ -397,12 +395,11 @@ ranks:
         amount: 14
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_2%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_3%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_2%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_3%"
       commands:
         - "crate key give {player} epica 4"
 
-  # ==================== FILA 3 - Mismo patrón: RED, ORANGE, YELLOW, LIME, LIGHT_BLUE, PURPLE, PINK (slots 28-34) ====================
   15:
     material: RED_DYE
     display_rank: "&f#15"
@@ -416,8 +413,8 @@ ranks:
         amount: 15
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_4%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_5%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_4%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_5%"
       commands:
         - "crate key give {player} elite 4"
 
@@ -434,8 +431,8 @@ ranks:
         amount: 16
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_2%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_2%"
       commands:
         - "crate key give {player} estelar 4"
 
@@ -452,8 +449,8 @@ ranks:
         amount: 17
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_3%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_4%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_3%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_4%"
       commands:
         - "crate key give {player} comun 5"
 
@@ -470,8 +467,8 @@ ranks:
         amount: 18
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_5%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_5%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
       commands:
         - "crate key give {player} epica 5"
 
@@ -488,8 +485,8 @@ ranks:
         amount: 19
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_2%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_3%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_2%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_3%"
       commands:
         - "crate key give {player} elite 5"
 
@@ -506,8 +503,8 @@ ranks:
         amount: 20
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_4%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_5%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_4%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_5%"
       commands:
         - "crate key give {player} estelar 5"
 
@@ -524,12 +521,11 @@ ranks:
         amount: 21
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_2%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_2%"
       commands:
         - "crate key give {player} comun 6"
 
-  # ==================== FILA 4 - Mismo patrón: RED, ORANGE, YELLOW, LIME, LIGHT_BLUE, PURPLE, PINK (slots 37-43) ====================
   22:
     material: RED_DYE
     display_rank: "&f#22"
@@ -543,8 +539,8 @@ ranks:
         amount: 22
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_3%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_4%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_3%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_4%"
       commands:
         - "crate key give {player} epica 6"
 
@@ -561,8 +557,8 @@ ranks:
         amount: 23
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_5%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_5%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
       commands:
         - "crate key give {player} elite 6"
 
@@ -579,8 +575,8 @@ ranks:
         amount: 24
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_2%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_3%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_2%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_3%"
       commands:
         - "crate key give {player} estelar 6"
 
@@ -597,8 +593,8 @@ ranks:
         amount: 25
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_4%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_5%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_4%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_5%"
       commands:
         - "crate key give {player} comun 7"
 
@@ -615,8 +611,8 @@ ranks:
         amount: 26
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_2%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_2%"
       commands:
         - "crate key give {player} epica 7"
 
@@ -633,8 +629,8 @@ ranks:
         amount: 27
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_3%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_4%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_3%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_4%"
       commands:
         - "crate key give {player} elite 7"
 
@@ -651,7 +647,7 @@ ranks:
         amount: 28
     rewards:
       displays:
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_5%"
-        - "&#FBCC23• &f%zmrankups_rewards-playtime_1%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_5%"
+        - "&#FBCC23• &f%zmrankups_playtime-rewards_1%"
       commands:
         - "crate key give {player} estelar 7"

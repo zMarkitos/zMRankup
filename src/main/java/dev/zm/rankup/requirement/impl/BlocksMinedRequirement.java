@@ -2,7 +2,7 @@ package dev.zm.rankup.requirement.impl;
 
 import dev.zm.rankup.requirement.Requirement;
 import dev.zm.rankup.storage.PlayerData;
-import dev.zm.rankup.util.NumberFormatter;
+import dev.zm.rankup.util.FormatUtil;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.Statistic;
@@ -37,7 +37,9 @@ public class BlocksMinedRequirement extends Requirement {
                 return 0.0;
             }
         }
-        return PlayerData.getLiveTotalBlocksMined(player);
+        dev.zm.rankup.storage.PlayerData data = dev.zm.rankup.zMRankup.getInstance().getPlayerDataCache()
+                .get(player.getUniqueId());
+        return data != null ? data.getLiveTotalBlocksMined(player) : 0.0;
     }
 
     @Override
@@ -49,7 +51,8 @@ public class BlocksMinedRequirement extends Requirement {
     protected String getDefaultDisplay() {
         String blockName = blockType != null ? translateNamedValue("blocks", blockType) : "";
         return lang("requirements.display.blocks_mined",
-                "amount", NumberFormatter.formatShort(amount),
-                "block_suffix", blockType != null ? " (" + blockName + ")" : lang("requirements.display.generic_blocks", " bloques"));
+                "amount", FormatUtil.formatShort(amount),
+                "block_suffix",
+                blockType != null ? " (" + blockName + ")" : lang("requirements.display.generic_blocks", " bloques"));
     }
 }

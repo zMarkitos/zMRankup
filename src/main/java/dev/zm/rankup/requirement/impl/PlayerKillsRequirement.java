@@ -1,7 +1,7 @@
 package dev.zm.rankup.requirement.impl;
 
 import dev.zm.rankup.requirement.Requirement;
-import dev.zm.rankup.util.NumberFormatter;
+import dev.zm.rankup.util.FormatUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
@@ -32,6 +32,6 @@ public class PlayerKillsRequirement extends Requirement {
 
     @Override
     protected String getDefaultDisplay() {
-        return lang("requirements.display.player_kills", "amount", NumberFormatter.formatShort(amount));
+        return lang("requirements.display.player_kills", "amount", FormatUtil.formatShort(amount));
     }
 }

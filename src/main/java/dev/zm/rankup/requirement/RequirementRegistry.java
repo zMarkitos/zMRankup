@@ -1,7 +1,6 @@
 package dev.zm.rankup.requirement;
 
 import dev.zm.rankup.zMRankup;
-import dev.zm.rankup.api.RequirementFactory;
 import dev.zm.rankup.requirement.impl.*;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -10,6 +9,11 @@ import java.util.Map;
 import java.util.Set;
 
 public class RequirementRegistry {
+
+    @FunctionalInterface
+    public interface RequirementFactory {
+        Requirement create(ConfigurationSection config);
+    }
 
     private final zMRankup plugin;
     private final Map<String, RequirementFactory> factories = new HashMap<>();
@@ -32,6 +36,7 @@ public class RequirementRegistry {
         register("deaths", DeathsRequirement::new);
         register("blocks_mined", BlocksMinedRequirement::new);
         register("placeholder", PlaceholderRequirement::new);
+        register("rankup_rank", SystemRankRequirement::new);
     }
 
     public Requirement create(String type, ConfigurationSection config) {

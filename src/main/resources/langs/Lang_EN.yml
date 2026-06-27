@@ -3,60 +3,112 @@
 # Missing keys are merged in automatically from the bundled defaults.
 #
 
+# ===========================
+# Player messages
+# ===========================
+
 no-permission: "{prefix}<red>You don't have permission to do this."
-rankup-success: "{prefix}<green>You have ranked up to {rank}!"
-rankup-fail: "{prefix}<red>You do not meet the requirements to rank up."
-rankup-max: "{prefix}<yellow>You are already at the maximum rank."
-auto-rankup-complete: "{prefix}<green>You have automatically claimed {count} rankup(s)."
-not-enough-money: "{prefix}<red>You don't have enough money. You need <gold>{amount}<red>."
-not-enough-requirements: "{prefix}<red>You don't meet all the requirements."
-rank-not-found: "{prefix}<red>The rank '{rank}' does not exist."
-player-not-found: "{prefix}<red>The player '{player}' was not found."
-config-reloaded: "{prefix}<green>Configuration reloaded successfully."
-rank-set: "{prefix}<green>Rank of <gold>{player}<green> set to <gold>{rank}<green>."
-rank-reset: "{prefix}<green>Data of <gold>{player}<green> reset."
-already-at-rank: "{prefix}<yellow>You are already at this rank."
-auto-rankup-enabled: "{prefix}<green>Auto-rankup enabled."
-auto-rankup-disabled: "{prefix}<red>Auto-rankup disabled."
-cooldown: "{prefix}<red>You must wait <gold>{time}<red> before trying again."
 console-only: "{prefix}<red>This command can only be executed by a player."
-usage: "{prefix}<yellow>Usage: {usage}"
-update-title: "<#4FF808><b>UPDATE AVAILABLE</b>"
-update-subtitle: "<gray>Version <white>{latest_version} <gray>is out!"
-update-available: "\n{prefix}<green>A new version of zMRankup is available! <gray>({current_version} -> {latest_version})\n"
-update-links: "{prefix}<yellow>Download here: <aqua><u>{version_url}</u>"
+usage: "{prefix}&fCorrect usage: &e{usage}"
+cooldown: "{prefix}&fYou must wait &e{time} &fbefore trying again."
+
+# ===========================
+# Rankup
+# ===========================
+
+rankup-success: "{prefix}&fYou ranked up to &e{rank}&f."
+rankup-fail: "{prefix}&cYou do not meet the requirements to rank up."
+rankup-max: "{prefix}&fYou are already at the maximum rank."
+rankup-max-prestige-available: "{prefix}&fYou are at the maximum rank. &eUse prestige to continue!"
+already-at-rank: "{prefix}&fYou are already at this rank."
+not-enough-money: "{prefix}&fInsufficient money. You need &e{amount}&f."
+not-enough-requirements: "{prefix}&fYou do not meet all the requirements."
+rank-not-found: "{prefix}&fThe rank &e{rank} &fdoes not exist."
+player-not-found: "{prefix}&fThe player &e{player} &fwas not found."
+
+# ===========================
+# Auto rankup
+# ===========================
+
+auto-rankup-complete: "{prefix}&fAuto-rankup completed. &e{count} &frank(s) claimed."
+auto-rankup-enabled: "{prefix}&fAuto-rankup &eenabled&f."
+auto-rankup-disabled: "{prefix}&fAuto-rankup &edisabled&f."
+
+# ===========================
+# Prestige
+# ===========================
+
+prestige-success: "{prefix}&fYou prestiged! You are now &e{prestige}&f."
+prestige-menu-success: "{prefix}&fPrestige claimed! Rank up for the next level."
+prestige-menu-fail: "{prefix}&cYou do not meet the requirements to prestige."
+
+# ===========================
+# Update
+# ===========================
+
+update-title: "{prefix}<#4FF808><b>UPDATE</b>"
+update-subtitle: "{prefix}&fVersion &e{latest_version} &fis available!"
+update-available: "{prefix}\n<dark_gray>[<red>zMRankup<dark_gray>] &fNew version available: &e{current_version} &f→ &e{latest_version}\n"
+update-links: "{prefix}&fDownload at: <aqua><u>{version_url}</u>"
+
+# ===========================
+# Admin
+# ===========================
+
+config-reloaded: "{prefix}&aConfiguration reloaded successfully."
+rank-set: "{prefix}&fRank of &e{player} &fset to &e{rank}&f."
+rank-reset: "{prefix}&fRank data of &e{player} &freset."
+
+admin-system-not-found: "{prefix}&cSystem &e{system} &cnot found."
+admin-rank-not-found: "{prefix}&cThe rank &e{rank} &cdoes not exist in system &e{system}&c."
+admin-rank-set: "{prefix}&fRank of &e{player} &fin &e{system} &f→ &e{rank}&f."
+admin-rank-reset: "{prefix}&fRank of &e{player} &fin &e{system} &freset."
+admin-prestige-level-not-found: "{prefix}&cThe level &e{level} &cdoes not exist in &e{system} &c(max: &e{max}&c)."
+admin-prestige-updated: "{prefix}&fPrestige of &e{player} &fin &e{system} &ffue actualizado."
+
+admin-version-checking: "{prefix}&eChecking version..."
+admin-version-latest: |
+  {prefix}&aYou are running the latest version!
+  &fCurrent: &e{current_version}
+  &fSpigotMC: &b<u><click:open_url:'{spigot_url}'>{spigot_url}</click></u>
+admin-version-update: |
+  {prefix}&eAn update is available!
+  &fCurrent: &c{current_version} &f-> Latest: &a{latest_version}
+  &fDownload: &b<u><click:open_url:'{spigot_url}'>{spigot_url}</click></u>
+
+placeholder-none: "0"
+
 admin-usage: |
-  <gold>━━━ zMRankup Admin ━━━
-  <yellow>/zmrankups admin reload <gray>-> Reload configuration
-  <yellow>/zmrankups admin version <gray>-> Check updates
-  <yellow>/zmrankups admin add <user> <system> <rank> <gray>-> Add rank
-  <yellow>/zmrankups admin set <user> <system> <rank> <gray>-> Set specific rank
-  <yellow>/zmrankups admin remove <user> <system> <gray>-> Remove rank
-  <yellow>/zmrankups admin reset <user> <system> <gray>-> Reset data
+  <dark_gray>[<red>zMRankup<dark_gray>] &fAdmin commands:
+  <dark_gray> │
+  <dark_gray> ├ &e/zmrankup admin set &f<player> <system> <rank>
+  <dark_gray> ├ &e/zmrankup admin reset &f<player> <system>
+  <dark_gray> ├ &e/zmrankup admin prestige set &f<player> <system> <level> [reset_rank]
+  <dark_gray> ├ &e/zmrankup admin prestige reset &f<player> <system>
+  <dark_gray> ├ &e/zmrankup admin reload
+  <dark_gray> └ &e/zmrankup admin version
 
 requirements:
-  # Default lore formatting used when rank requirements are rendered in menus.
   default-lore:
     empty: "&cNo requirements!"
     format: " {color_system}• {display} &7({progress}) {status}"
     status-met: "&#4FF808&l✔"
     status-unmet: "&#FD3418&l✘"
-  # Friendly names for requirement values shown in menus and messages.
   display:
     vault_balance: "&fHave &#97FF1C{amount} &fmoney"
-    playtime_hours: "&fPlayed for %zmrankups_color-system_{position}%{amount} hours ⌚"
-    playtime_minutes: "&fPlayed for %zmrankups_color-system_{position}%{amount} minutes ⌚"
+    playtime_hours: "&fHave played %zmrankups_color-system_{position}%{amount} hours ⌚"
+    playtime_minutes: "&fHave played %zmrankups_color-system_{position}%{amount} minutes ⌚"
     permission: "&fRequire permission: &#FFD966{permission}"
     mob_kills: "&fKill &#FF6B6B{amount}&f{mob_suffix}"
     player_kills: "&fKill &#FF4444{amount} &fplayers"
     deaths: "&fDie &#AA66FF{amount} &ftimes"
     blocks_mined: "&fMine &#66FFAA{amount}&f{block_suffix}"
-    placeholder: "{name}: {amount}"
+    placeholder: "&f{name}: &#FFDD88{amount}"
     generic_blocks: " blocks"
     generic_mobs: " mobs"
+    rankup_rank: "&fRequired rank: %zmrankups_color-system_{position}%{value} &fin %zmrankups_color-system_{position}%{system}"
 
 translations:
-  # Vanilla entity and block names used by requirement descriptions.
   mobs:
     zombie: "Zombie"
     husk: "Husk"
@@ -119,8 +171,8 @@ translations:
     deepslate_gold_ore: "Deepslate Gold Ore"
     redstone_ore: "Redstone Ore"
     deepslate_redstone_ore: "Deepslate Redstone Ore"
-    lapis_ore: "Lapis Ore"
-    deepslate_lapis_ore: "Deepslate Lapis Ore"
+    lapis_ore: "Lapis Lazuli Ore"
+    deepslate_lapis_ore: "Deepslate Lapis Lazuli Ore"
     emerald_ore: "Emerald Ore"
     deepslate_emerald_ore: "Deepslate Emerald Ore"
     diamond_ore: "Diamond Ore"
@@ -150,4 +202,4 @@ translations:
     spawner: "Spawner"
 
 # Do not modify below this line.
-messages-version: 1
+messages-version: 2

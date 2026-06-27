@@ -7,9 +7,8 @@ import dev.zm.rankup.config.PlaceholderContext;
 import dev.zm.rankup.requirement.Requirement;
 import dev.zm.rankup.reward.Reward;
 import dev.zm.rankup.util.ColorUtil;
+import dev.zm.rankup.util.FormatUtil;
 import dev.zm.rankup.util.ItemBuilder;
-import dev.zm.rankup.util.NumberFormatter;
-import dev.zm.rankup.util.ProgressBar;
 import dev.zm.rankup.zMRankup;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -25,7 +24,6 @@ import java.util.Map;
 public class MenuManager {
 
     private final zMRankup plugin;
-    private final Map<String, StaticMenuItemData> staticItems = new HashMap<>();
 
     public MenuManager(zMRankup plugin) {
         this.plugin = plugin;
@@ -33,47 +31,75 @@ public class MenuManager {
 
     public void loadMenuConfig() {
         // Now loaded per-system dynamically or globally if needed.
-        // Static items are now parsed directly when opening the menu to allow per-system customization.
+        // Static items are now parsed directly when opening the menu to allow
+        // per-system customization.
     }
 
     private Map<String, StaticMenuItemData> getSystemStaticItems(RankupSystem system) {
         Map<String, StaticMenuItemData> items = new HashMap<>();
-        ConfigurationSection navSection = system.getConfig().getConfigurationSection("items.navigation");
-        if (navSection == null) {
-            // Fallback to global config if system doesn't define it
-            ConfigurationSection menuSection = plugin.getConfigManager().getMenuSection();
-            if (menuSection != null) navSection = menuSection.getConfigurationSection("navigation");
-        }
 
-        if (navSection != null) {
-            for (String key : navSection.getKeys(false)) {
-                ConfigurationSection itemConf = navSection.getConfigurationSection(key);
-                if (itemConf == null || !itemConf.getBoolean("enabled", true)) continue;
+        // Try flat items.* section first (prestige.yml style: items.close, items.info,
+        // etc.)
+        ConfigurationSection itemsSection = system.getConfig().getConfigurationSection("items");
+
+        if (itemsSection != null) {
+            for (String key : itemsSection.getKeys(false)) {
+                // Skip nested sections we handle elsewhere (navigation/DECORATION)
+                if (key.equalsIgnoreCase("navigation") || key.equalsIgnoreCase("DECORATION"))
+                    continue;
+                ConfigurationSection itemConf = itemsSection.getConfigurationSection(key);
+                if (itemConf == null || !itemConf.getBoolean("enabled", true))
+                    continue;
 
                 String material = itemConf.getString("material", "STONE");
-
                 items.put(key.toLowerCase(), new StaticMenuItemData(
                         material,
+                        itemConf.getInt("slot", -1),
                         itemConf.getString("display_name", " "),
                         itemConf.getStringList("lore"),
                         itemConf.getBoolean("glow", false),
-                        itemConf.getStringList("actions")
-                ));
+                        itemConf.getStringList("actions")));
+            }
+        }
+
+        // Also try items.navigation (rankups.yml style)
+        ConfigurationSection navSection = itemsSection != null ? itemsSection.getConfigurationSection("navigation")
+                : null;
+        if (navSection == null) {
+            ConfigurationSection menuSection = plugin.getConfigManager().getMenuSection();
+            if (menuSection != null)
+                navSection = menuSection.getConfigurationSection("navigation");
+        }
+        if (navSection != null) {
+            for (String key : navSection.getKeys(false)) {
+                ConfigurationSection itemConf = navSection.getConfigurationSection(key);
+                if (itemConf == null || !itemConf.getBoolean("enabled", true))
+                    continue;
+                String material = itemConf.getString("material", "STONE");
+                items.put(key.toLowerCase(), new StaticMenuItemData(
+                        material,
+                        itemConf.getInt("slot", -1),
+                        itemConf.getString("display_name", " "),
+                        itemConf.getStringList("lore"),
+                        itemConf.getBoolean("glow", false),
+                        itemConf.getStringList("actions")));
             }
         }
         return items;
     }
 
-    private List<Integer> parseSlots(List<String> slotsRaw) {
+    public static List<Integer> parseSlots(List<String> slotsRaw) {
         List<Integer> result = new ArrayList<>();
-        if (slotsRaw == null) return result;
+        if (slotsRaw == null)
+            return result;
         for (String s : slotsRaw) {
             if (s.contains("-")) {
                 String[] split = s.split("-");
                 try {
                     int start = Integer.parseInt(split[0]);
                     int end = Integer.parseInt(split[1]);
-                    for (int i = start; i <= end; i++) result.add(i);
+                    for (int i = start; i <= end; i++)
+                        result.add(i);
                 } catch (NumberFormatException ignored) {
                 }
             } else {
@@ -108,9 +134,12 @@ public class MenuManager {
         int rows = system.getMenuRows();
 
         int maxPages = system.getMaxPage();
-        if (maxPages < 1) maxPages = 1;
-        if (page < 1) page = 1;
-        if (page > maxPages) page = maxPages;
+        if (maxPages < 1)
+            maxPages = 1;
+        if (page < 1)
+            page = 1;
+        if (page > maxPages)
+            page = maxPages;
         final int currentPage = page;
         final int totalPages = maxPages;
 
@@ -119,81 +148,126 @@ public class MenuManager {
                 "max_page", String.valueOf(totalPages));
         MenuBuilder builder = new MenuBuilder(title, rows);
 
+        // Decoration: support both items.DECORATION (rankups style) and
+        // items.decoration (prestige style)
         ConfigurationSection decoSection = system.getConfig().getConfigurationSection("items.DECORATION");
         if (decoSection == null) {
+            decoSection = system.getConfig().getConfigurationSection("items.decoration");
+        }
+        if (decoSection == null) {
             ConfigurationSection menuSection = plugin.getConfigManager().getMenuSection();
-            if (menuSection != null) decoSection = menuSection.getConfigurationSection("DECORATION");
+            if (menuSection != null)
+                decoSection = menuSection.getConfigurationSection("DECORATION");
         }
 
-        if (decoSection != null && decoSection.getBoolean("enabled", false)) {
-            String fillerMat = decoSection.getString("material", "GRAY_STAINED_GLASS_PANE");
-            String decoName = decoSection.getString("display_name", " ");
-            List<Integer> slots = parseSlots(decoSection.getStringList("slots"));
-            ItemStack fillerItem = new ItemBuilder(fillerMat, player).name(decoName).build();
-            MenuItem filler = new MenuItem(fillerItem);
-            for (int slot : slots) {
-                builder.setItem(slot, filler);
-            }
-        }
-
-        Map<String, StaticMenuItemData> sysItems = getSystemStaticItems(system);
-        ConfigurationSection navSection = system.getConfig().getConfigurationSection("items.navigation");
-        if (navSection == null) {
-            ConfigurationSection menuSection = plugin.getConfigManager().getMenuSection();
-            if (menuSection != null) navSection = menuSection.getConfigurationSection("navigation");
-        }
-
-        if (navSection != null) {
-                for (String key : navSection.getKeys(false)) {
-                    int slot = navSection.getInt(key + ".slot", -1);
-                    StaticMenuItemData itemData = sysItems.get(key.toLowerCase());
-                    if (slot == -1 || itemData == null) continue;
-
-                    ItemStack item = buildStaticItem(player, itemData, currentPage, maxPages);
-
-                    List<String> actions = itemData.actions();
-                    if ("previous-page".equalsIgnoreCase(key)) {
-                        builder.setItem(slot, new MenuItem(item, e -> {
-                            MenuActionExecutor.execute(plugin, player, actions);
-                            if (currentPage > 1) {
-                                openMenu(player, system, currentPage - 1);
-                            }
-                        }));
-                    } else if ("next-page".equalsIgnoreCase(key)) {
-                        builder.setItem(slot, new MenuItem(item, e -> {
-                            MenuActionExecutor.execute(plugin, player, actions);
-                            if (currentPage < totalPages) {
-                                openMenu(player, system, currentPage + 1);
-                            }
-                        }));
-                    } else if ("close".equalsIgnoreCase(key)) {
-                        builder.setItem(slot, new MenuItem(item, e -> {
-                            MenuActionExecutor.execute(plugin, player, actions);
-                            if (actions == null || actions.stream().noneMatch(a -> a != null && a.toLowerCase().contains("[close]"))) {
-                                player.closeInventory();
-                            }
-                        }));
-                    } else {
-                        builder.setItem(slot, new MenuItem(item, e -> MenuActionExecutor.execute(plugin, player, actions)));
-                    }
+        if (decoSection != null) {
+            boolean enabled = decoSection.getBoolean("enabled", true); // prestige style has no 'enabled' key
+            if (enabled) {
+                String fillerMat = decoSection.getString("material", "GRAY_STAINED_GLASS_PANE");
+                String decoName = decoSection.getString("display_name", " ");
+                List<Integer> slots = parseSlots(decoSection.getStringList("slots"));
+                ItemStack fillerItem = new ItemBuilder(fillerMat, player).name(decoName).build();
+                MenuItem filler = new MenuItem(fillerItem);
+                for (int slot : slots) {
+                    builder.setItem(slot, filler);
                 }
             }
+        }
+
+        // Render all static items (flat prestige style + navigation style) using their
+        // embedded slot
+        Map<String, StaticMenuItemData> sysItems = getSystemStaticItems(system);
+        for (Map.Entry<String, StaticMenuItemData> entry : sysItems.entrySet()) {
+            String key = entry.getKey();
+            StaticMenuItemData itemData = entry.getValue();
+            int slot = itemData.slot();
+            if (slot < 0)
+                continue;
+
+            ItemStack item = buildStaticItem(player, itemData, currentPage, maxPages);
+            List<String> actions = itemData.actions();
+
+            if ("previous-page".equalsIgnoreCase(key)) {
+                final int prevPage = currentPage;
+                builder.setItem(slot, new MenuItem(item, e -> {
+                    MenuActionExecutor.execute(plugin, player, actions);
+                    if (prevPage > 1)
+                        org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> openMenu(player, system, prevPage - 1), 1L);
+                }));
+            } else if ("next-page".equalsIgnoreCase(key)) {
+                final int nextPage = currentPage;
+                builder.setItem(slot, new MenuItem(item, e -> {
+                    MenuActionExecutor.execute(plugin, player, actions);
+                    if (nextPage < totalPages)
+                        org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> openMenu(player, system, nextPage + 1), 1L);
+                }));
+            } else if ("close".equalsIgnoreCase(key)) {
+                // Ensure the executor always closes the menu. Inject [close] if the
+                // config hasn't declared any deferred action (player_command, open-system, etc.)
+                // that would already trigger a close via the executor's deferred phase.
+                List<String> closeActions = new java.util.ArrayList<>(actions != null ? actions : List.of());
+                boolean hasDeferred = closeActions.stream().anyMatch(a -> a != null && (
+                        a.toLowerCase().contains("[player_command]") ||
+                        a.toLowerCase().contains("[console_command]") ||
+                        a.toLowerCase().contains("[open-system]") ||
+                        a.toLowerCase().contains("[close]")));
+                if (!hasDeferred) closeActions.add("[close]");
+                final List<String> finalCloseActions = java.util.Collections.unmodifiableList(closeActions);
+                builder.setItem(slot, new MenuItem(item, e -> MenuActionExecutor.execute(plugin, player, finalCloseActions)));
+            } else {
+                builder.setItem(slot, new MenuItem(item, e -> MenuActionExecutor.execute(plugin, player, actions)));
+            }
+        }
 
         Rank currentRank = rm.getCurrentRank(system, player);
         int currentRankIndex = currentRank != null ? system.getRankIndex(currentRank.getId()) : -1;
 
-        for (Rank rank : allRanks) {
-            if (rank.getPage() != currentPage) continue;
+        boolean isPrestigeSystem = system.getTargetSystemId() != null && !system.getTargetSystemId().isBlank();
+        boolean isAtMaxPrestige = false;
+        if (isPrestigeSystem) {
+            int prestigeLevel = plugin.getPrestigeManager().getPrestigeLevel(player, system);
+            Rank currentPrestigeRank = system.getRank(String.valueOf(prestigeLevel));
+            currentRankIndex = currentPrestigeRank != null
+                    ? system.getRankIndex(currentPrestigeRank.getId())
+                    : -1;
+            // Check if no next prestige rank exists — player has reached max prestige
+            Rank nextPrestigeRank = system.getRank(String.valueOf(prestigeLevel + 1));
+            isAtMaxPrestige = (nextPrestigeRank == null && prestigeLevel >= system.getAllRanks().size());
+        }
+        class RenderedRank {
+            Rank rank;
+            String templateKey;
+            TemplateManager.TemplateData template;
+            int score;
+            int slot;
 
-            int slot = rank.getSlot();
-            if (slot < 0) continue;
+            RenderedRank(Rank rank, String templateKey, TemplateManager.TemplateData template, int score, int slot) {
+                this.rank = rank;
+                this.templateKey = templateKey;
+                this.template = template;
+                this.score = score;
+                this.slot = slot;
+            }
+        }
+
+        Map<Integer, RenderedRank> ranksToRender = new HashMap<>();
+
+        for (Rank rank : allRanks) {
+            if (rank.getPage() != currentPage)
+                continue;
 
             int rankIndex = system.getRankIndex(rank.getId());
-            String templateKey = "locked";
-            if (rankIndex <= currentRankIndex) {
+            String templateKey;
+
+            if (isPrestigeSystem && isAtMaxPrestige) {
+                int lastIndex = system.getAllRanks().size() - 1;
+                templateKey = (rankIndex == lastIndex) ? "max" : "current";
+            } else if (rankIndex <= currentRankIndex) {
                 templateKey = "current";
             } else if (rankIndex == currentRankIndex + 1) {
                 templateKey = "available";
+            } else {
+                templateKey = "locked";
             }
 
             if (rank.getTemplateOverride() != null) {
@@ -205,7 +279,36 @@ public class MenuManager {
             if (template == null) {
                 template = tm.getTemplate(templateKey);
             }
-            if (template == null) continue;
+            if (template == null)
+                continue;
+
+            // Use rank's slot if defined, otherwise fall back to template slot
+            int slot = rank.getSlot() >= 0 ? rank.getSlot() : template.getSlot();
+            if (slot < 0)
+                continue;
+
+            int score;
+            if (isPrestigeSystem && isAtMaxPrestige && rankIndex == system.getAllRanks().size() - 1) {
+                score = 10000;
+            } else if (rankIndex == currentRankIndex + 1) {
+                score = 10000;
+            } else if (rankIndex <= currentRankIndex) {
+                score = 5000 + rankIndex;
+            } else {
+                score = 1000 - rankIndex;
+            }
+
+            RenderedRank existing = ranksToRender.get(slot);
+            if (existing == null || score > existing.score) {
+                ranksToRender.put(slot, new RenderedRank(rank, templateKey, template, score, slot));
+            }
+        }
+
+        for (RenderedRank rr : ranksToRender.values()) {
+            Rank rank = rr.rank;
+            String templateKey = rr.templateKey;
+            TemplateManager.TemplateData template = rr.template;
+            int slot = rr.slot;
 
             RankProgressData progressData = buildRankProgressData(player, rank, templateKey, currentRankIndex);
             PlaceholderContext context = PlaceholderContext.withPosition(rank.getListPosition());
@@ -239,7 +342,8 @@ public class MenuManager {
             }
 
             String mat = rank.getMaterial() != null && !"DEFAULT".equalsIgnoreCase(rank.getMaterial())
-                    ? rank.getMaterial() : template.getMaterial();
+                    ? rank.getMaterial()
+                    : template.getMaterial();
             ItemStack item = new ItemBuilder(mat, player)
                     .amount(rank.getAmount())
                     .name(name)
@@ -250,8 +354,19 @@ public class MenuManager {
             MenuItem rankItem;
             if ("available".equals(templateKey)) {
                 rankItem = new MenuItem(item, e -> {
-                    plugin.getRankManager().attemptRankup(system, player);
-                    openMenu(player, system, currentPage);
+                    if (isPrestigeSystem) {
+                        boolean done = plugin.getPrestigeManager().prestige(player, system);
+                        if (done) {
+                            plugin.getMessageManager().send(player, "prestige-menu-success");
+                        } else {
+                            plugin.getMessageManager().send(player, "prestige-menu-fail");
+                            org.bukkit.Bukkit.getScheduler().runTask(plugin,
+                                    () -> openMenu(player, system, currentPage));
+                        }
+                    } else {
+                        plugin.getRankManager().attemptRankup(system, player);
+                        org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> openMenu(player, system, currentPage));
+                    }
                 });
             } else {
                 rankItem = new MenuItem(item);
@@ -291,13 +406,14 @@ public class MenuManager {
 
         for (Reward reward : rank.getRewards()) {
             for (String line : reward.getDescription()) {
-                lore.add("  " + plugin.getMessageManager().replacePlaceholders(player, context, line));
+                lore.add("  " + plugin.getMessageManager().replacePlaceholders(player, context, true, line));
             }
         }
         return lore;
     }
 
-    private List<String> buildRequirementsLore(Player player, RankupSystem system, Rank rank, PlaceholderContext context) {
+    private List<String> buildRequirementsLore(Player player, RankupSystem system, Rank rank,
+            PlaceholderContext context) {
         List<String> lore = new ArrayList<>();
         ConfigurationSection reqLoreSection = plugin.getConfigManager().getRequirementLoreSection();
 
@@ -332,9 +448,9 @@ public class MenuManager {
 
             if (progress == null || progress.isEmpty()) {
                 parsed = parsed.replace(" &7({progress})", "")
-                               .replace(" <gray>({progress})", "")
-                               .replace(" ({progress})", "")
-                               .replace("({progress})", "");
+                        .replace(" <gray>({progress})", "")
+                        .replace(" ({progress})", "")
+                        .replace("({progress})", "");
             } else {
                 parsed = parsed.replace("{progress}", progress);
             }
@@ -347,15 +463,14 @@ public class MenuManager {
     private RankProgressData buildRankProgressData(Player player, Rank rank, String templateKey, int currentRankIndex) {
         double progress = rank.getProgress(player).getOverallProgress();
         int length = plugin.getConfigManager().getProgressBarLength();
-        String progressText = NumberFormatter.formatPercentage(progress * 100);
-        String progressBar = ProgressBar.createDefault(
+        String progressText = FormatUtil.formatPercentage(progress * 100);
+        String progressBar = FormatUtil.createDefaultProgressBar(
                 progress,
                 length,
                 plugin.getConfigManager().getProgressBarFilledChar(),
                 plugin.getConfigManager().getProgressBarEmptyChar(),
                 plugin.getConfigManager().getProgressBarFilledColor(),
-                plugin.getConfigManager().getProgressBarEmptyColor()
-        );
+                plugin.getConfigManager().getProgressBarEmptyColor());
 
         if ("current".equals(templateKey) && currentRankIndex >= rank.getOrder()) {
             progressText = "100";
@@ -367,6 +482,7 @@ public class MenuManager {
     private record RankProgressData(String progressText, String progressBar) {
     }
 
-    private record StaticMenuItemData(String material, String displayName, List<String> lore, boolean glow, List<String> actions) {
+    private record StaticMenuItemData(String material, int slot, String displayName, List<String> lore, boolean glow,
+            List<String> actions) {
     }
 }

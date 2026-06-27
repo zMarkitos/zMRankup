@@ -23,7 +23,8 @@ public class SystemCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
+            @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
             plugin.getMessageManager().send(sender, "console-only");
             return true;
@@ -44,7 +45,19 @@ public class SystemCommand implements CommandExecutor, TabCompleter {
             int rankedUp = plugin.getRankManager().rankupToMax(system, player);
             if (rankedUp <= 0) {
                 if (plugin.getRankManager().getNextRank(system, player) == null) {
-                    plugin.getMessageManager().send(player, "rankup-max");
+                    boolean canPrestige = plugin.getSystemManager().getAllSystems().stream()
+                            .filter(RankupSystem::isPrestigeEnabled)
+                            .anyMatch(ps -> {
+                                dev.zm.rankup.system.RankupSystem target = plugin.getPrestigeManager()
+                                        .getTargetSystem(ps);
+                                return target != null && target.getId().equals(system.getId())
+                                        && plugin.getPrestigeManager().canPrestige(player, ps);
+                            });
+                    if (canPrestige) {
+                        plugin.getMessageManager().send(player, "rankup-max-prestige-available");
+                    } else {
+                        plugin.getMessageManager().send(player, "rankup-max");
+                    }
                 } else {
                     plugin.getMessageManager().send(player, "rankup-fail");
                 }
@@ -60,13 +73,15 @@ public class SystemCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
+            @NotNull String alias, @NotNull String[] args) {
         if (!(sender instanceof Player) || !sender.hasPermission("zmrankup.use")) {
             return List.of();
         }
 
         if (args.length == 1) {
-            return args[0].isEmpty() ? List.of("auto") : ("auto".startsWith(args[0].toLowerCase()) ? List.of("auto") : List.of());
+            return args[0].isEmpty() ? List.of("auto")
+                    : ("auto".startsWith(args[0].toLowerCase()) ? List.of("auto") : List.of());
         }
 
         return List.of();

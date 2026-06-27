@@ -1,0 +1,158 @@
+# ============================================================
+#  zMRankup - Prestige System
+# ============================================================
+
+menu_title: '&8&nPrestige menu'
+open_command:
+- menuprestiges
+register_command: true
+size: 45
+system: rankups.yml
+
+templates:
+  color-system: "&#f9a23e"
+  locked:
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjY0ZDNjYTEyMDZlOTIxYzY2YTJjZWY3NGI4NTQxNzA1NDFlNGVlOWFiZThmYTY3OGNmYWY5NjQ5NjRhMTZhMiJ9fX0=
+    glow: false
+    slot: 22
+    display_name: "&fPrestige &8→ {rank_display}"
+    lore:
+      - ""
+      - "&#26c8f9✉ Information"
+      - " &8| &fIncrease your prestige to"
+      - " &8| &funlock unique rewards."
+      - ""
+      - "&#f9a23e✎ Requirements:"
+      - "{requirements}"
+      - ""
+      - "&#5BFB1A⭐ Rewards:"
+      - "{rewards}"
+      - ""
+      - "&#F86767■ You don't meet the requirements"
+
+  available:
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTIwNThjZTM3NjE3NDYyNzQ5NDlmYjVmZGNkYzk0OTcyYjFiNmFhMTFlMmE1YzEzM2EyZGMyMzhkYTMwMDc4YSJ9fX0=
+    glow: true
+    slot: 22
+    display_name: "&fPrestige &8→ {rank_display}"
+    lore:
+      - ""
+      - "&#26c8f9✉ Information"
+      - " &8| &fIncrease your prestige to"
+      - " &8| &funlock unique rewards."
+      - ""
+      - "&#f9a23e✎ Requirements:"
+      - "{requirements}"
+      - ""
+      - "&#5BFB1A⭐ Rewards:"
+      - "{rewards}"
+      - ""
+      - "&#89FF24■ Click to claim"
+
+  max:
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhkMDVmZDRmYzZmZDFjYjMyY2NiYWJlODcwNDBhMjk2YjUxNDI3YjRmYTVjZTU3YmU1YjQxMWQ4NmUyMzRjOCJ9fX0=
+    glow: true
+    slot: 22
+    display_name: "&fPrestige &8→ &#FF3400&lMAXIMUM!"
+    lore:
+      - ""
+      - "&#FF3400✉ Information"
+      - " &8| &fYou have reached the"
+      - " &8| &fhighest prestige level."
+      - ""
+      - "&#FF3400⭐ Congratulations, legend!"
+
+items:
+  decoration:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: " "
+    slots:
+      - 0-8
+      - 36-44
+  close:
+    slot: 24
+    material: BARRIER
+    display_name: "&fNavigation &8→ &#FF1616&lCLOSE"
+    lore:
+      - ""
+      - " &8| &fClose this menu"
+      - " &8| &fand return to the main one."
+      - ""
+      - "&#FF1616■ Click to close!"
+    actions:
+      - "[sound] UI_BUTTON_CLICK"
+      - "[player_command] prestige"
+  info:
+    slot: 20
+    material: BOOK
+    display_name: "&fServer &8→ &#FF1616&lMY PROFILE"
+    lore:
+      - ""
+      - " &8| &fCurrent prestige: &a%zmrankup_prestige-rankups_prestige% "
+      - " &8| &fNext prestige: &e%zmrankup_prestige-rankups_next_prestige%"
+      - " &8| &fProgress: &9%zmrankup_prestige-rankups_progress%%"
+      - ""
+
+prestiges:
+  1:
+    display_rank: "&#84FAFF「P1 ✦」"
+    permission-group: p1
+    list-position: 9
+    requirements:
+      money:
+        type: vault_balance
+        amount: 1000000
+      rank:
+        type: rankup_rank
+        value: 10
+    rewards:
+      displays:
+        - "&#89FF24• %zmrankups_prestigio-rankups_1%"
+        - "&#89FF24• %zmrankups_prestigio-rankups_2%"
+        - "&#89FF24• %zmrankups_prestigio-rankups_3%"
+      commands:
+        - "crate key give {player} comun 1"
+        - "crate key give {player} rankup 1"
+        - "lp user {player} permission settemp aircore.command.fly true 1d"
+
+  2:
+    display_rank: "&#FF1616「P2 ✦」"
+    permission-group: p2
+    list-position: 9
+    requirements:
+      money:
+        type: vault_balance
+        amount: 1000000
+      rank:
+        type: rankup_rank
+        value: 10
+    rewards:
+      displays:
+        - "&#89FF24• %zmrankups_prestigio-rankups_1%"
+        - "&#89FF24• %zmrankups_prestigio-rankups_2%"
+        - "&#89FF24• %zmrankups_prestigio-rankups_3%"
+      commands:
+        - "crate key give {player} comun 1"
+        - "crate key give {player} rankup 1"
+        - "lp user {player} permission settemp aircore.command.fly true 1d"
+
+  3:
+    display_rank: "&#FDFF55「P3 ✦」"
+    permission-group: p3
+    list-position: 9
+    requirements:
+      money:
+        type: vault_balance
+        amount: 1000000
+      rank:
+        type: rankup_rank
+        value: 10
+    rewards:
+      displays:
+        - "&#89FF24• %zmrankups_prestigio-rankups_1%"
+        - "&#89FF24• %zmrankups_prestigio-rankups_2%"
+        - "&#89FF24• %zmrankups_prestigio-rankups_3%"
+      commands:
+        - "crate key give {player} comun 1"
+        - "crate key give {player} rankup 1"
+        - "lp user {player} permission settemp aircore.command.fly true 1d"

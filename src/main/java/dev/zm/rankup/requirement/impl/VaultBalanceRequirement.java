@@ -1,7 +1,7 @@
 package dev.zm.rankup.requirement.impl;
 
 import dev.zm.rankup.requirement.Requirement;
-import dev.zm.rankup.util.NumberFormatter;
+import dev.zm.rankup.util.FormatUtil;
 import dev.zm.rankup.zMRankup;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -40,6 +40,6 @@ public class VaultBalanceRequirement extends Requirement {
 
     @Override
     protected String getDefaultDisplay() {
-        return lang("requirements.display.vault_balance", "amount", NumberFormatter.formatShort(amount));
+        return lang("requirements.display.vault_balance", "amount", FormatUtil.formatShort(amount));
     }
 }

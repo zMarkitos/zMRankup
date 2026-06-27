@@ -32,13 +32,21 @@ public class SystemManager {
         defaultSystem = null;
 
         File systemsFolder = new File(plugin.getDataFolder(), "systems");
-        if (!systemsFolder.exists()) {
+        boolean firstRun = !systemsFolder.exists();
+        if (firstRun) {
             systemsFolder.mkdirs();
-            copyBundledSystemIfMissing("systems/rankups.yml");
-            copyBundledSystemIfMissing("systems/playtime.yml");
+        }
+
+        if (firstRun) {
+            copyBundledSystem("systems/rankups.yml");
+            copyBundledSystem("systems/playtime.yml");
+            copyBundledSystem("systems/prestige-rankups.yml");
         } else {
-            copyBundledSystemIfMissing("systems/rankups.yml");
-            copyBundledSystemIfMissing("systems/playtime.yml");
+            // Also handle the legacy ranks.yml migration if rankups.yml doesn't exist
+            File target = new File(systemsFolder, "rankups.yml");
+            if (!target.exists()) {
+                migrateLegacyRanksIfNeeded(target);
+            }
         }
 
         File[] files = systemsFolder.listFiles((dir, name) -> name.endsWith(".yml"));
@@ -49,9 +57,9 @@ public class SystemManager {
                 RankupSystem system = new RankupSystem(id, config);
                 loadRanksForSystem(system);
                 systems.put(id, system);
-                
-                if (defaultSystem == null || "rankups".equalsIgnoreCase(id)) {
-                    defaultSystem = system; // Prioritize 'rankups' as default
+
+                if (defaultSystem == null || "rankups".equalsIgnoreCase(id) || "rankup".equalsIgnoreCase(id)) {
+                    defaultSystem = system; // Prioritize 'rankups' or 'rankup' as default
                 }
             }
         }
@@ -59,15 +67,10 @@ public class SystemManager {
         plugin.getLogger().info("Loaded " + systems.size() + " rankup systems.");
     }
 
-    private void copyBundledSystemIfMissing(String resourcePath) {
-        File target = new File(plugin.getDataFolder(), resourcePath.replace("/", File.separator));
-        if (target.exists() || plugin.getResource(resourcePath) == null) {
-            if (!target.exists()) {
-                migrateLegacyRanksIfNeeded(target);
-            }
-            return;
+    private void copyBundledSystem(String resourcePath) {
+        if (plugin.getResource(resourcePath) != null) {
+            plugin.saveResource(resourcePath, false);
         }
-        plugin.saveResource(resourcePath, false);
     }
 
     private void migrateLegacyRanksIfNeeded(File target) {
@@ -79,12 +82,17 @@ public class SystemManager {
 
     private void loadRanksForSystem(RankupSystem system) {
         ConfigurationSection ranksSection = system.getConfig().getConfigurationSection("ranks");
-        if (ranksSection == null) return;
+        if (ranksSection == null) {
+            ranksSection = system.getConfig().getConfigurationSection("prestiges");
+        }
+        if (ranksSection == null)
+            return;
 
         int order = 0;
         for (String id : ranksSection.getKeys(false)) {
             ConfigurationSection rankSection = ranksSection.getConfigurationSection(id);
-            if (rankSection == null) continue;
+            if (rankSection == null)
+                continue;
 
             String displayName = rankSection.getString("display_rank", rankSection.getString("display_name", id));
             String materialStr = rankSection.contains("material")
@@ -100,7 +108,8 @@ public class SystemManager {
             if (listPosition < 1) {
                 listPosition = order + 1;
             }
-            String permissionGroup = rankSection.getString("permission-group", rankSection.getString("permission_group", null));
+            String permissionGroup = rankSection.getString("permission-group",
+                    rankSection.getString("permission_group", null));
 
             Map<String, Requirement> requirementsMap = new LinkedHashMap<>();
             ConfigurationSection reqSection = rankSection.getConfigurationSection("requirements");
@@ -109,8 +118,17 @@ public class SystemManager {
                     ConfigurationSection reqConfig = reqSection.getConfigurationSection(reqId);
                     if (reqConfig != null) {
                         String type = reqConfig.getString("type");
+                        // For rankup_rank requirements: auto-inject the parent system's targetSystemId
+                        // if the user did not specify a 'system' key in the requirement block.
+                        if ("rankup_rank".equalsIgnoreCase(type) && !reqConfig.contains("system")) {
+                            String targetId = system.getTargetSystemId();
+                            if (targetId != null && !targetId.isBlank()) {
+                                reqConfig.set("system", targetId);
+                            }
+                        }
                         Requirement req = plugin.getRequirementRegistry().create(type, reqConfig);
-                        if (req != null) requirementsMap.put(reqId, req);
+                        if (req != null)
+                            requirementsMap.put(reqId, req);
                     }
                 }
             }
@@ -130,14 +148,16 @@ public class SystemManager {
 
             List<String> successActions = rankSection.getStringList("actions.success");
 
-            Rank rank = new Rank(id, displayName, order, slot, page, materialStr, permissionGroup, requirementsMap, rewards, successActions, null, useDefaultLoreReqs, customReqLore, listPosition, amount);
+            Rank rank = new Rank(id, displayName, order, slot, page, materialStr, permissionGroup, requirementsMap,
+                    rewards, successActions, null, useDefaultLoreReqs, customReqLore, listPosition, amount);
             system.addRank(id, rank);
             order++;
         }
     }
 
     public RankupSystem getSystem(String id) {
-        if (id == null) return null;
+        if (id == null)
+            return null;
         return systems.get(id);
     }
 

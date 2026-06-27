@@ -1,7 +1,7 @@
 package dev.zm.rankup.requirement.impl;
 
 import dev.zm.rankup.requirement.Requirement;
-import dev.zm.rankup.util.NumberFormatter;
+import dev.zm.rankup.util.FormatUtil;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
@@ -46,7 +46,7 @@ public class MobKillsRequirement extends Requirement {
     protected String getDefaultDisplay() {
         String mobName = mobType != null ? translateNamedValue("mobs", mobType) : "";
         return lang("requirements.display.mob_kills",
-                "amount", NumberFormatter.formatShort(amount),
+                "amount", FormatUtil.formatShort(amount),
                 "mob_suffix", mobType != null ? " (" + mobName + ")" : lang("requirements.display.generic_mobs", " mobs"));
     }
 

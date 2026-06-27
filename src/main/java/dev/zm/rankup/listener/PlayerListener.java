@@ -4,6 +4,7 @@ import dev.zm.rankup.zMRankup;
 import dev.zm.rankup.storage.PlayerData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -26,15 +27,22 @@ public class PlayerListener implements Listener {
         plugin.getVersionChecker().notifyPlayer(event.getPlayer());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
-        plugin.getPermissionManager().removePlayer(event.getPlayer());
-        plugin.getPlayerDataCache().saveAndRemove(event.getPlayer().getUniqueId());
+
+        Player player = event.getPlayer();
+        PlayerData data = plugin.getPlayerDataCache().get(player.getUniqueId());
+        if (data != null) {
+            data.syncRealStatistics(player);
+        }
+        plugin.getPermissionManager().removePlayer(player);
+        plugin.getPlayerDataCache().saveAndRemove(player.getUniqueId());
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        if (event.isCancelled()) return;
+        if (event.isCancelled())
+            return;
         Player player = event.getPlayer();
         PlayerData data = plugin.getPlayerDataCache().getOrCreate(player.getUniqueId());
         data.incrementBlocksMined(event.getBlock().getType().name(), 1);

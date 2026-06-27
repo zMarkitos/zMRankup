@@ -115,6 +115,10 @@ public final class VersionChecker {
         }
     }
 
+    public CompletableFuture<UpdateResult> checkNow() {
+        return checkAsync(plugin.getDescription().getVersion());
+    }
+
     private CompletableFuture<UpdateResult> checkAsync(String currentVersion) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -195,7 +199,7 @@ public final class VersionChecker {
         if (!notifiedPlayers.add(player.getUniqueId()))
             return;
 
-        String[] replacements = new String[]{
+        String[] replacements = new String[] {
                 "current_version", result.currentVersion(),
                 "latest_version", result.latestVersion(),
                 "version_url", result.spigotUrl(),
@@ -209,12 +213,14 @@ public final class VersionChecker {
         if (title != null && subtitle != null) {
             String parsedTitle = plugin.getMessageManager().replacePlaceholders(player, title, replacements);
             String parsedSubtitle = plugin.getMessageManager().replacePlaceholders(player, subtitle, replacements);
-            plugin.getMessageManager().sendTitle(player, PlaceholderContext.empty(), parsedTitle, parsedSubtitle, 20, 80, 20);
+            plugin.getMessageManager().sendTitle(player, PlaceholderContext.empty(), parsedTitle, parsedSubtitle, 20,
+                    80, 20);
         }
 
         plugin.getMessageManager().send(player, "update-available", replacements);
 
-        // Build clickable link message programmatically to avoid MiniMessage URL parsing issues
+        // Build clickable link message programmatically to avoid MiniMessage URL
+        // parsing issues
         String linkLabel = plugin.getConfigManager().getLangMessage("update-links");
         String parsedLabel = plugin.getMessageManager().replacePlaceholders(player, linkLabel, replacements);
         Component linkMessage = ColorUtil.parse(parsedLabel)
@@ -222,11 +228,13 @@ public final class VersionChecker {
                 .hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(
                         Component.text("Click to open", NamedTextColor.GRAY)));
         player.sendMessage(linkMessage);
-        
+
         // Log to console
         Bukkit.getConsoleSender().sendMessage(ColorUtil.parse("\n<#4FF808><b>[zMRankup] UPDATE AVAILABLE</b>"));
-        Bukkit.getConsoleSender().sendMessage(ColorUtil.parse("<green>A new version of zMRankup is available! <gray>(" + result.currentVersion() + " -> " + result.latestVersion() + ")"));
-        Bukkit.getConsoleSender().sendMessage(ColorUtil.parse("<yellow>Download here: <aqua>" + result.spigotUrl() + "\n"));
+        Bukkit.getConsoleSender().sendMessage(ColorUtil.parse("<green>A new version of zMRankup is available! <gray>("
+                + result.currentVersion() + " -> " + result.latestVersion() + ")"));
+        Bukkit.getConsoleSender()
+                .sendMessage(ColorUtil.parse("<yellow>Download here: <aqua>" + result.spigotUrl() + "\n"));
     }
 
     private boolean canReceiveNotifications(Player player) {

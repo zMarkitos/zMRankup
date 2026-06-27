@@ -20,16 +20,21 @@ public class CommandManager {
 
     private final List<Command> dynamicCommands = new ArrayList<>();
 
+    private java.lang.reflect.Field knownCommandsField;
+    private java.lang.reflect.Method knownCommandsMethod;
+
     public CommandManager(zMRankup plugin) {
         this.plugin = plugin;
     }
 
     public void register() {
-        if (plugin.getCommand("zmrankups") != null) {
+        if (plugin.getCommand("zmrankup") != null) {
             ZMRankupsCommand cmd = new ZMRankupsCommand(plugin);
-            plugin.getCommand("zmrankups").setExecutor(cmd);
-            plugin.getCommand("zmrankups").setTabCompleter(cmd);
+            plugin.getCommand("zmrankup").setExecutor(cmd);
+            plugin.getCommand("zmrankup").setTabCompleter(cmd);
         }
+
+        // Old static prestige command is removed in favor of the dynamic one.
 
         reloadDynamicCommands();
     }
@@ -57,34 +62,75 @@ public class CommandManager {
 
             // Register new system commands
             for (RankupSystem system : plugin.getSystemManager().getAllSystems()) {
-                if (!system.isRegisterCommand()) continue;
+                if (!system.isRegisterCommand())
+                    continue;
                 List<String> cmds = system.getOpenCommands();
-                if (cmds.isEmpty()) continue;
+                if (cmds.isEmpty())
+                    continue;
 
                 String primary = cmds.get(0);
                 List<String> aliases = cmds.size() > 1 ? cmds.subList(1, cmds.size()) : new ArrayList<>();
 
                 SystemCommand executor = new SystemCommand(plugin, system.getId());
-                
-                Command dynamicCommand = new Command(primary, "Open " + system.getId() + " menu", "/" + primary, aliases) {
+
+                Command dynamicCommand = new Command(primary, "Open " + system.getId() + " menu", "/" + primary,
+                        aliases) {
                     @Override
-                    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+                    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel,
+                            @NotNull String[] args) {
                         return executor.onCommand(sender, this, commandLabel, args);
                     }
 
                     @NotNull
                     @Override
-                    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+                    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias,
+                            @NotNull String[] args) throws IllegalArgumentException {
                         List<String> completions = executor.onTabComplete(sender, this, alias, args);
                         return completions != null ? completions : new ArrayList<>();
                     }
                 };
-                
+
                 commandMap.register(plugin.getName(), dynamicCommand);
                 dynamicCommands.add(dynamicCommand);
             }
 
-            // Sync commands for all online players so they see the changes in tab completion
+            // Register Master Prestige Command
+            List<String> prestigeCmds = plugin.getConfigManager().getConfig()
+                    .getStringList("settings.prestige-commands");
+            if (prestigeCmds != null && !prestigeCmds.isEmpty()) {
+                String primary = prestigeCmds.get(0);
+                List<String> aliases = prestigeCmds.size() > 1 ? prestigeCmds.subList(1, prestigeCmds.size())
+                        : new ArrayList<>();
+                Command dynamicPrestigeCommand = new Command(primary, "Open master prestige menu", "/" + primary,
+                        aliases) {
+                    @Override
+                    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel,
+                            @NotNull String[] args) {
+                        if (!(sender instanceof Player player)) {
+                            plugin.getMessageManager().send(sender, "console-only");
+                            return true;
+                        }
+                        if (!player.hasPermission("zmrankup.use")) {
+                            plugin.getMessageManager().send(player, "no-permission");
+                            return true;
+                        }
+                        plugin.getPrestigeManager().openMenu(player);
+                        return true;
+                    }
+
+                    @NotNull
+                    @Override
+                    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias,
+                            @NotNull String[] args) throws IllegalArgumentException {
+                        return new ArrayList<>();
+                    }
+                };
+                commandMap.register(plugin.getName(), dynamicPrestigeCommand);
+                dynamicCommands.add(dynamicPrestigeCommand);
+            }
+
+            // Sync commands for all online players so they see the changes in tab
+            // completion
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.updateCommands();
             }
@@ -97,21 +143,23 @@ public class CommandManager {
     @SuppressWarnings("unchecked")
     private Map<String, Command> getKnownCommands(CommandMap commandMap) {
         try {
-            java.lang.reflect.Field field = commandMap.getClass().getDeclaredField("knownCommands");
-            field.setAccessible(true);
-            return (Map<String, Command>) field.get(commandMap);
-        } catch (NoSuchFieldException e) {
-            // Paper exposes getKnownCommands() directly on SimpleCommandMap
-            try {
-                java.lang.reflect.Method method = commandMap.getClass().getMethod("getKnownCommands");
-                return (Map<String, Command>) method.invoke(commandMap);
-            } catch (Exception ex) {
-                plugin.getLogger().warning("Could not access knownCommands for command cleanup: " + ex.getMessage());
-                return null;
+            if (knownCommandsField == null && knownCommandsMethod == null) {
+                try {
+                    knownCommandsField = commandMap.getClass().getDeclaredField("knownCommands");
+                    knownCommandsField.setAccessible(true);
+                } catch (NoSuchFieldException e) {
+                    knownCommandsMethod = commandMap.getClass().getMethod("getKnownCommands");
+                }
+            }
+
+            if (knownCommandsField != null) {
+                return (Map<String, Command>) knownCommandsField.get(commandMap);
+            } else if (knownCommandsMethod != null) {
+                return (Map<String, Command>) knownCommandsMethod.invoke(commandMap);
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Could not access knownCommands for command cleanup: " + e.getMessage());
-            return null;
         }
+        return null;
     }
 }

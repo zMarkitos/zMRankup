@@ -1,6 +1,6 @@
 package dev.zm.rankup.requirement;
 
-import dev.zm.rankup.util.NumberFormatter;
+import dev.zm.rankup.util.FormatUtil;
 import dev.zm.rankup.zMRankup;
 import org.bukkit.entity.Player;
 
@@ -25,7 +25,8 @@ public abstract class Requirement {
     }
 
     public static String formatConfigName(String name) {
-        if (name == null || name.isEmpty()) return "Requisito";
+        if (name == null || name.isEmpty())
+            return "Requisito";
         String clean = name.replace("_", " ").trim();
         String[] words = clean.split(" ");
         StringBuilder sb = new StringBuilder();
@@ -49,7 +50,8 @@ public abstract class Requirement {
 
     public double getProgressPercentage(Player player) {
         double req = getRequired();
-        if (req <= 0) return 1.0;
+        if (req <= 0)
+            return 1.0;
         return Math.min(1.0, getProgress(player) / req);
     }
 
@@ -106,6 +108,6 @@ public abstract class Requirement {
     }
 
     public String getProgressDisplay(Player player) {
-        return NumberFormatter.formatShort(getProgress(player)) + "/" + NumberFormatter.formatShort(getRequired());
+        return FormatUtil.formatShort(getProgress(player)) + "/" + FormatUtil.formatShort(getRequired());
     }
 }
