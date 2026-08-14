@@ -45,6 +45,11 @@ settings:
     - prestige
     - prestigio
 
+  # Use dynamic arrows for paginated menus.
+  # true: Hides previous page arrow on first page, and next page arrow on last page.
+  # false: Always shows pagination arrows (legacy behavior).
+  dynamic-pagination-arrows: true
+
 # ============================================================
 # Auto Rankup
 # ============================================================

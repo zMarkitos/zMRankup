@@ -188,6 +188,9 @@ public class MenuManager {
             List<String> actions = itemData.actions();
 
             if ("previous-page".equalsIgnoreCase(key)) {
+                if (plugin.getConfigManager().isDynamicPaginationArrowsEnabled()) {
+                    if (totalPages <= 1 || currentPage <= 1) continue;
+                }
                 final int prevPage = currentPage;
                 builder.setItem(slot, new MenuItem(item, e -> {
                     MenuActionExecutor.execute(plugin, player, actions);
@@ -195,6 +198,9 @@ public class MenuManager {
                         org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> openMenu(player, system, prevPage - 1), 1L);
                 }));
             } else if ("next-page".equalsIgnoreCase(key)) {
+                if (plugin.getConfigManager().isDynamicPaginationArrowsEnabled()) {
+                    if (totalPages <= 1 || currentPage >= totalPages) continue;
+                }
                 final int nextPage = currentPage;
                 builder.setItem(slot, new MenuItem(item, e -> {
                     MenuActionExecutor.execute(plugin, player, actions);

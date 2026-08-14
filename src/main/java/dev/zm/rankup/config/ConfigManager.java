@@ -198,6 +198,10 @@ public class ConfigManager {
         return config.getBoolean("settings.debug", false);
     }
 
+    public boolean isDynamicPaginationArrowsEnabled() {
+        return config.getBoolean("settings.dynamic-pagination-arrows", true);
+    }
+
     public ConfigurationSection getMenuSection() {
         return config.getConfigurationSection("menu");
     }

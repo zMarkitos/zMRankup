@@ -22,6 +22,8 @@ import dev.zm.rankup.system.SystemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 
 public final class zMRankup extends JavaPlugin {
 
@@ -125,6 +127,8 @@ public final class zMRankup extends JavaPlugin {
 
         this.versionChecker = new dev.zm.rankup.util.VersionChecker(this);
         this.versionChecker.refresh();
+        int pluginId = 33341;
+        Metrics metrics = new Metrics(this, pluginId);
 
         // Load data for online players (in case of reload)
         for (Player p : Bukkit.getOnlinePlayers()) {

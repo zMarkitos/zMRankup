@@ -40,13 +40,25 @@ public class SystemManager {
         if (firstRun) {
             copyBundledSystem("systems/rankups.yml");
             copyBundledSystem("systems/playtime.yml");
-            copyBundledSystem("systems/prestige-rankups.yml");
         } else {
             // Also handle the legacy ranks.yml migration if rankups.yml doesn't exist
             File target = new File(systemsFolder, "rankups.yml");
             if (!target.exists()) {
                 migrateLegacyRanksIfNeeded(target);
             }
+        }
+        
+        File internalDataFile = new File(plugin.getDataFolder(), "internal-data.yml");
+        FileConfiguration internalData = YamlConfiguration.loadConfiguration(internalDataFile);
+        if (!internalData.getBoolean("prestige-rankups-generated", false)) {
+            File prestigeFile = new File(systemsFolder, "prestige-rankups.yml");
+            if (!prestigeFile.exists()) {
+                copyBundledSystem("systems/prestige-rankups.yml");
+            }
+            internalData.set("prestige-rankups-generated", true);
+            try {
+                internalData.save(internalDataFile);
+            } catch (java.io.IOException ignored) {}
         }
 
         File[] files = systemsFolder.listFiles((dir, name) -> name.endsWith(".yml"));
