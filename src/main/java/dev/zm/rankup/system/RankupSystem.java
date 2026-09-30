@@ -32,6 +32,7 @@ public class RankupSystem {
     private final String prestigeIcon;
     private final String prestigeStartRankId;
     private final boolean prestigeResetRank;
+    private final String defaultRank;
 
     public RankupSystem(String id, FileConfiguration config) {
         this.id = id;
@@ -40,6 +41,7 @@ public class RankupSystem {
         this.menuTitle = config.getString("menu_title", "&8&n" + id + " Menu ({page}/{max_page})");
         this.menuRows = config.getInt("size", 54) / 9;
         this.colorSystem = config.getString("templates.color-system", "");
+        this.defaultRank = config.getString("default_rank", "&c✖");
         
         List<String> cmds = config.getStringList("open_command");
         if (cmds.isEmpty() && config.isString("open_command")) {
@@ -159,6 +161,10 @@ public class RankupSystem {
 
     public boolean isPrestigeResetRank() {
         return prestigeResetRank;
+    }
+
+    public String getDefaultRank() {
+        return defaultRank;
     }
 
     public Rank getRank(String rankId) {

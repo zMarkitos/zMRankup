@@ -76,8 +76,6 @@ admin-version-update: |
   &fActual: &c{current_version} &f-> Nueva: &a{latest_version}
   &fDescargar: &b<u><click:open_url:'{spigot_url}'>{spigot_url}</click></u>
 
-placeholder-none: "0"
-
 admin-usage: |
   <dark_gray>[<red>zMRankup<dark_gray>] &fComandos de administración:
   <dark_gray> │

@@ -73,8 +73,6 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         if (system == null)
             return "";
 
-        // For prestige metrics, if the resolved system has no prestige enabled,
-        // fall back to the first prestige-enabled system automatically.
         boolean isPrestigeMetric = metric.startsWith("prestige") || metric.equals("can_prestige");
         RankupSystem prestigeSystem = system;
         if (isPrestigeMetric && !system.isPrestigeEnabled()) {
@@ -87,16 +85,16 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         return switch (metric) {
             case "rank" -> {
                 Rank current = rm.getCurrentRank(system, player);
-                String none = plugin.getConfigManager().getLangMessage("placeholder-none");
+                String none = system.getDefaultRank();
                 if (none == null || none.isEmpty())
-                    none = "Ninguno";
-                yield current != null ? ColorUtil.toLegacy(current.getDisplayName()) : none;
+                    none = "&c✖";
+                yield current != null ? ColorUtil.toLegacy(current.getDisplayName()) : ColorUtil.toLegacy(none);
             }
             case "rank_id" ->
                 data.getCurrentRankId(system.getId()) != null ? data.getCurrentRankId(system.getId()) : "none";
             case "next_rank" -> {
                 Rank next = rm.getNextRank(system, player);
-                yield next != null ? ColorUtil.toLegacy(next.getDisplayName()) : "Máximo";
+                yield next != null ? ColorUtil.toLegacy(next.getDisplayName()) : "Max";
             }
             case "next_rank_id" -> {
                 Rank next = rm.getNextRank(system, player);

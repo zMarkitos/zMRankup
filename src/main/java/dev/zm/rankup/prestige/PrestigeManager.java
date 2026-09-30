@@ -102,11 +102,17 @@ public class PrestigeManager {
 
     public String formatPrestige(RankupSystem system, int level) {
         if (system == null)
-            return "P" + Math.max(level, 0);
+            return level > 0 ? "P" + level : ColorUtil.translateLegacy("&c✖");
+            
+        if (level <= 0) {
+            String def = system.getDefaultRank();
+            return def != null && !def.isEmpty() ? ColorUtil.translateLegacy(def) : ColorUtil.translateLegacy("&c✖");
+        }
+        
         String formatted = system.getPrestigeFormat();
         if (formatted == null || formatted.isBlank())
             formatted = "P{level}";
-        return ColorUtil.translateLegacy(formatted.replace("{level}", String.valueOf(Math.max(level, 0))));
+        return ColorUtil.translateLegacy(formatted.replace("{level}", String.valueOf(level)));
     }
 
     public boolean prestige(Player player, RankupSystem system) {

@@ -8,6 +8,7 @@ open_command:
 register_command: true
 size: 45
 system: rankups.yml
+default_rank: "&c✖"
 
 templates:
   color-system: "&#f9a23e"

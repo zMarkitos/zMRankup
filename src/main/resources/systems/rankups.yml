@@ -12,6 +12,8 @@ open_command:
 register_command: true
 # Inventory size in slots. Must be a multiple of 9.
 size: 54
+# Default rank prefix
+default_rank: "&c✖"
 
 # Visual templates for locked, current, and available ranks.
 templates:
