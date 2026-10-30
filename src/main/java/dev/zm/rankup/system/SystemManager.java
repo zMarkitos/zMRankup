@@ -4,7 +4,6 @@ import dev.zm.rankup.zMRankup;
 import dev.zm.rankup.rank.Rank;
 import dev.zm.rankup.requirement.Requirement;
 import dev.zm.rankup.reward.Reward;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -20,16 +19,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SystemManager {
 
     private final zMRankup plugin;
-    private final Map<String, RankupSystem> systems = new ConcurrentHashMap<>();
-    private RankupSystem defaultSystem;
+    private volatile Map<String, RankupSystem> systems = new ConcurrentHashMap<>();
+    private volatile RankupSystem defaultSystem;
 
     public SystemManager(zMRankup plugin) {
         this.plugin = plugin;
     }
 
     public void loadAll() {
-        systems.clear();
-        defaultSystem = null;
+        // Build into a fresh map and swap atomically so a reload never exposes a
+        // partially-loaded state to concurrent rankup/menu operations.
+        Map<String, RankupSystem> newSystems = new ConcurrentHashMap<>();
+        RankupSystem newDefault = null;
 
         File systemsFolder = new File(plugin.getDataFolder(), "systems");
         boolean firstRun = !systemsFolder.exists();
@@ -48,7 +49,8 @@ public class SystemManager {
             }
         }
         
-        File internalDataFile = new File(plugin.getDataFolder(), "internal-data.yml");
+        File internalDataFile = new File(plugin.getDataFolder(), "data" + File.separator + "internal-data.yml");
+        internalDataFile.getParentFile().mkdirs();
         FileConfiguration internalData = YamlConfiguration.loadConfiguration(internalDataFile);
         if (!internalData.getBoolean("prestige-rankups-generated", false)) {
             File prestigeFile = new File(systemsFolder, "prestige-rankups.yml");
@@ -61,6 +63,12 @@ public class SystemManager {
             } catch (java.io.IOException ignored) {}
         }
 
+        // Clean up the legacy root-level internal-data.yml (now stored under data/).
+        File legacyInternalData = new File(plugin.getDataFolder(), "internal-data.yml");
+        if (legacyInternalData.exists()) {
+            legacyInternalData.delete();
+        }
+
         File[] files = systemsFolder.listFiles((dir, name) -> name.endsWith(".yml"));
         if (files != null) {
             for (File file : files) {
@@ -68,15 +76,18 @@ public class SystemManager {
                 FileConfiguration config = YamlConfiguration.loadConfiguration(file);
                 RankupSystem system = new RankupSystem(id, config);
                 loadRanksForSystem(system);
-                systems.put(id, system);
+                newSystems.put(id, system);
 
-                if (defaultSystem == null || "rankups".equalsIgnoreCase(id) || "rankup".equalsIgnoreCase(id)) {
-                    defaultSystem = system; // Prioritize 'rankups' or 'rankup' as default
+                if (newDefault == null || "rankups".equalsIgnoreCase(id) || "rankup".equalsIgnoreCase(id)) {
+                    newDefault = system; // Prioritize 'rankups' or 'rankup' as default
                 }
             }
         }
 
-        plugin.getLogger().info("Loaded " + systems.size() + " rankup systems.");
+        this.systems = newSystems;
+        this.defaultSystem = newDefault;
+
+        plugin.getLogger().info("Loaded " + newSystems.size() + " rankup systems.");
     }
 
     private void copyBundledSystem(String resourcePath) {
@@ -114,6 +125,8 @@ public class SystemManager {
             int slot = rankSection.getInt("slot", -1);
             int page = rankSection.getInt("page", 1);
             int amount = rankSection.getInt("amount", 1);
+            int customModelData = rankSection.getInt("custom-model-data",
+                    rankSection.getInt("custom_model_data", -1));
             int listPosition = rankSection.contains("list-position")
                     ? rankSection.getInt("list-position", order + 1)
                     : rankSection.getInt("list_position", order + 1);
@@ -145,13 +158,6 @@ public class SystemManager {
                 }
             }
 
-            boolean useDefaultLoreReqs = rankSection.getBoolean("use-default-lore-requirements",
-                    rankSection.getBoolean("use-default-lore-requirimients", true));
-            List<String> customReqLore = rankSection.getStringList("lore-requirements");
-            if (customReqLore.isEmpty() && rankSection.isList("lore-requiriments")) {
-                customReqLore = rankSection.getStringList("lore-requiriments");
-            }
-
             List<Reward> rewards = new ArrayList<>();
             ConfigurationSection rewardSection = rankSection.getConfigurationSection("rewards");
             if (rewardSection != null) {
@@ -160,8 +166,8 @@ public class SystemManager {
 
             List<String> successActions = rankSection.getStringList("actions.success");
 
-            Rank rank = new Rank(id, displayName, order, slot, page, materialStr, permissionGroup, requirementsMap,
-                    rewards, successActions, null, useDefaultLoreReqs, customReqLore, listPosition, amount);
+            Rank rank = new Rank(id, displayName, order, slot, page, materialStr, customModelData,
+                    permissionGroup, requirementsMap, rewards, successActions, null, listPosition, amount);
             system.addRank(id, rank);
             order++;
         }

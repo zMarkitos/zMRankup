@@ -41,6 +41,7 @@ auto-rankup-disabled: "{prefix}&fAuto-rankup &edesactivado&f."
 prestige-success: "{prefix}&f¡Prestigiaste! Ahora eres &e{prestige}&f."
 prestige-menu-success: "{prefix}&f¡Prestigio reclamado! Sube de rango para el siguiente nivel."
 prestige-menu-fail: "{prefix}&cNo cumples los requisitos para prestigiar."
+prestige-disabled: "{prefix}&cLos prestigios están deshabilitados en este servidor."
 
 # ===========================
 # Update

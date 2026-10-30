@@ -20,20 +20,18 @@ public class Rank {
     private final int listPosition;
     private final int amount;
     private final String material;
+    private final int customModelData;
     private final String permissionGroup;
     private final Map<String, Requirement> requirementsMap;
     private final List<Requirement> requirements;
     private final List<Reward> rewards;
     private final List<String> successActions;
     private final String templateOverride;
-    private final boolean useDefaultLoreRequirements;
-    private final List<String> customRequirementsLore;
 
     public Rank(String id, String displayName, int order, int slot, int page, String material,
-                String permissionGroup,
+                int customModelData, String permissionGroup,
                 Map<String, Requirement> requirementsMap, List<Reward> rewards,
                 List<String> successActions, String templateOverride,
-                boolean useDefaultLoreRequirements, List<String> customRequirementsLore,
                 int listPosition, int amount) {
         this.id = id;
         this.displayName = displayName;
@@ -43,14 +41,13 @@ public class Rank {
         this.listPosition = listPosition < 1 ? order + 1 : listPosition;
         this.amount = Math.max(1, amount);
         this.material = material;
+        this.customModelData = customModelData;
         this.permissionGroup = permissionGroup == null || permissionGroup.isBlank() ? null : permissionGroup;
         this.requirementsMap = requirementsMap == null ? Collections.emptyMap() : Collections.unmodifiableMap(requirementsMap);
         this.requirements = new ArrayList<>(this.requirementsMap.values());
         this.rewards = rewards == null ? Collections.emptyList() : Collections.unmodifiableList(rewards);
         this.successActions = successActions == null ? Collections.emptyList() : Collections.unmodifiableList(successActions);
         this.templateOverride = templateOverride;
-        this.useDefaultLoreRequirements = useDefaultLoreRequirements;
-        this.customRequirementsLore = customRequirementsLore == null ? Collections.emptyList() : Collections.unmodifiableList(customRequirementsLore);
     }
 
     public String getId() {
@@ -85,6 +82,10 @@ public class Rank {
         return material;
     }
 
+    public int getCustomModelData() {
+        return customModelData;
+    }
+
     public String getPermissionGroup() {
         return permissionGroup;
     }
@@ -95,14 +96,6 @@ public class Rank {
 
     public Map<String, Requirement> getRequirementsMap() {
         return requirementsMap;
-    }
-
-    public boolean isUseDefaultLoreRequirements() {
-        return useDefaultLoreRequirements;
-    }
-
-    public List<String> getCustomRequirementsLore() {
-        return customRequirementsLore;
     }
 
     public List<Reward> getRewards() {

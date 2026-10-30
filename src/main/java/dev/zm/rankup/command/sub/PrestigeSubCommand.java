@@ -97,9 +97,6 @@ public class PrestigeSubCommand implements SubCommand {
                 case "set" -> {
                     data.setPrestigeLevel(system.getId(), finalAmount);
 
-                    // NUEVO: resetear el rango del sistema target igual que
-                    // hace PrestigeManager.prestige() — sin esto el jugador
-                    // conserva el rango que tenía y el prestige queda inconsistente.
                     RankupSystem targetSystem = plugin.getPrestigeManager().getTargetSystem(system);
                     if (targetSystem != null && resetRanks) {
                         String startRankId = system.getPrestigeStartRankId();
@@ -113,8 +110,6 @@ public class PrestigeSubCommand implements SubCommand {
                 case "reset" -> {
                     data.resetPrestige(system.getId());
 
-                    // NUEVO: al resetear prestige también limpiamos el rango
-                    // del target system para dejar todo desde cero.
                     RankupSystem targetSystem = plugin.getPrestigeManager().getTargetSystem(system);
                     if (targetSystem != null && system.isPrestigeResetRank()) {
                         String startRankId = system.getPrestigeStartRankId();

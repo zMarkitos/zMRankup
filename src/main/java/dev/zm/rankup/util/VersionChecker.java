@@ -65,7 +65,7 @@ public final class VersionChecker {
             if (this.updateFuture == future) {
                 this.cachedResult = result;
                 if (result.updateAvailable()) {
-                    Bukkit.getScheduler().runTask(plugin, () -> notifyOnlinePlayers(result));
+                    notifyOnlinePlayers(result);
                 }
             }
         });
@@ -94,7 +94,7 @@ public final class VersionChecker {
             if (!updateResult.updateAvailable())
                 return;
 
-            Bukkit.getScheduler().runTask(plugin, () -> {
+            SchedulerUtil.runOnEntity(plugin, player, () -> {
                 if (this.updateFuture != future)
                     return;
                 if (player.isOnline() && canReceiveNotifications(player)) {
@@ -109,9 +109,11 @@ public final class VersionChecker {
             return;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (canReceiveNotifications(player)) {
-                sendNotification(player, result);
-            }
+            SchedulerUtil.runOnEntity(plugin, player, () -> {
+                if (canReceiveNotifications(player)) {
+                    sendNotification(player, result);
+                }
+            });
         }
     }
 

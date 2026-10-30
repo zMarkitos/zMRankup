@@ -18,12 +18,12 @@ import dev.zm.rankup.storage.PlayerDataCache;
 import dev.zm.rankup.storage.StorageManager;
 import dev.zm.rankup.placeholder.PlaceholderListManager;
 import dev.zm.rankup.system.SystemManager;
+import dev.zm.rankup.util.SchedulerUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
 
 public final class zMRankup extends JavaPlugin {
 
@@ -89,7 +89,6 @@ public final class zMRankup extends JavaPlugin {
         this.rankManager = new RankManager(this);
 
         this.menuManager = new MenuManager(this);
-        this.menuManager.loadMenuConfig();
 
         // Commands & Listeners
         this.commandManager = new CommandManager(this);
@@ -101,16 +100,16 @@ public final class zMRankup extends JavaPlugin {
         // Tasks
         int autoRankupInterval = this.configManager.getAutoRankupInterval();
         if (this.configManager.isAutoRankupEnabled() && autoRankupInterval > 0) {
-            Bukkit.getScheduler().runTaskTimer(this, () -> {
+            SchedulerUtil.runGlobalTimer(this, () -> {
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (this.playerDataCache.get(player.getUniqueId()) == null)
-                        continue;
-                    if (!this.rankManager.hasAutoRankupPermission(player))
-                        continue;
-
-                    Bukkit.getScheduler().runTask(this, () -> {
+                    SchedulerUtil.runOnEntity(this, player, () -> {
                         if (!player.isOnline())
                             return;
+                        if (this.playerDataCache.get(player.getUniqueId()) == null)
+                            return;
+                        if (!this.rankManager.hasAutoRankupPermission(player))
+                            return;
+
                         for (dev.zm.rankup.system.RankupSystem system : this.systemManager.getAllSystems()) {
                             dev.zm.rankup.rank.Rank next = this.rankManager.getNextRank(system, player);
                             if (next != null && next.isAvailable(player)) {
@@ -214,7 +213,6 @@ public final class zMRankup extends JavaPlugin {
         if (this.prestigeManager != null) {
             this.prestigeManager.reload();
         }
-        this.menuManager.loadMenuConfig();
         if (this.commandManager != null) {
             this.commandManager.reloadDynamicCommands();
         }

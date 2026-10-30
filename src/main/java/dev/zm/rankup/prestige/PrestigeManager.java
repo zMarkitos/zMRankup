@@ -1,18 +1,18 @@
 package dev.zm.rankup.prestige;
 
 import dev.zm.rankup.config.PlaceholderContext;
+import dev.zm.rankup.menu.MenuActionExecutor;
 import dev.zm.rankup.menu.MenuBuilder;
 import dev.zm.rankup.menu.MenuItem;
 import dev.zm.rankup.menu.MenuManager;
 import dev.zm.rankup.rank.Rank;
 import dev.zm.rankup.requirement.Requirement;
+import dev.zm.rankup.storage.PlayerData;
 import dev.zm.rankup.system.RankupSystem;
 import dev.zm.rankup.util.ColorUtil;
 import dev.zm.rankup.util.ItemBuilder;
+import dev.zm.rankup.util.SchedulerUtil;
 import dev.zm.rankup.zMRankup;
-import dev.zm.rankup.storage.PlayerData;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,13 +20,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import dev.zm.rankup.menu.MenuBuilder;
-import dev.zm.rankup.menu.MenuItem;
-import dev.zm.rankup.menu.MenuActionExecutor;
-import dev.zm.rankup.menu.MenuManager;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.inventory.ItemStack;
-import java.util.ArrayList;
 
 public class PrestigeManager {
 
@@ -66,6 +59,8 @@ public class PrestigeManager {
     }
 
     public boolean canPrestige(Player player, RankupSystem system) {
+        if (!plugin.getConfigManager().isPrestigeEnabled())
+            return false;
         if (player == null || system == null || !system.isPrestigeEnabled())
             return false;
 
@@ -131,10 +126,6 @@ public class PrestigeManager {
             Rank startRank = startRankId != null ? targetSystem.getRank(startRankId) : null;
             data.setCurrentRankId(targetSystem.getId(), startRank != null ? startRank.getId() : null);
         }
-        // Removed the else-if branch that was setting currentRankId on the prestige
-        // system itself,
-        // which corrupted getCurrentRank() and caused the menu to show the wrong
-        // prestige as available.
 
         plugin.getPlayerDataCache().save(player.getUniqueId());
         if (plugin.getPermissionManager() != null) {
@@ -175,7 +166,7 @@ public class PrestigeManager {
         }
 
         if (plugin.getConfigManager().getConfig().getBoolean("prestige.close-menu-on-success", true)) {
-            Bukkit.getScheduler().runTask(plugin, (Runnable) player::closeInventory);
+            SchedulerUtil.runOnEntity(plugin, player, player::closeInventory);
         }
 
         return true;
@@ -191,11 +182,14 @@ public class PrestigeManager {
     public void openMenu(Player player) {
         if (player == null)
             return;
-        if (!Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTask(plugin, () -> openMenu(player));
+        if (!plugin.getConfigManager().isPrestigeEnabled()) {
+            plugin.getMessageManager().send(player, "prestige-disabled");
             return;
         }
+        SchedulerUtil.runOnEntity(plugin, player, () -> openMenuNow(player));
+    }
 
+    private void openMenuNow(Player player) {
         // prestiges.yml is a standalone menu config, not a RankupSystem.
         // Build and open it directly from prestigeConfig.
         if (prestigeConfig == null) {
@@ -214,8 +208,9 @@ public class PrestigeManager {
         if (deco != null && deco.getBoolean("enabled", true)) {
             String mat = deco.getString("material", "GRAY_STAINED_GLASS_PANE");
             String name = deco.getString("display_name", " ");
+            int modelData = readCustomModelData(deco);
             List<Integer> slots = MenuManager.parseSlots(deco.getStringList("slots"));
-            ItemStack fillerItem = new dev.zm.rankup.util.ItemBuilder(mat, player).name(name).build();
+            ItemStack fillerItem = new ItemBuilder(mat, player).name(name).customModelData(modelData).build();
             MenuItem filler = new MenuItem(fillerItem);
             for (int slot : slots)
                 builder.setItem(slot, filler);
@@ -239,6 +234,7 @@ public class PrestigeManager {
                 String rawName = itemConf.getString("display_name", " ");
                 List<String> rawLore = itemConf.getStringList("lore");
                 boolean glow = itemConf.getBoolean("glow", false);
+                int modelData = readCustomModelData(itemConf);
                 List<String> actions = itemConf.getStringList("actions");
 
                 String name = plugin.getMessageManager().replacePlaceholders(player, rawName);
@@ -247,13 +243,17 @@ public class PrestigeManager {
                     lore.add(plugin.getMessageManager().replacePlaceholders(player, line));
                 }
 
-                ItemStack item = new dev.zm.rankup.util.ItemBuilder(mat, player)
-                        .name(name).lore(lore).glow(glow).build();
+                ItemStack item = new ItemBuilder(mat, player)
+                        .name(name).lore(lore).glow(glow).customModelData(modelData).build();
 
                 builder.setItem(slot, new MenuItem(item, e -> MenuActionExecutor.execute(plugin, player, actions)));
             }
         }
 
         player.openInventory(builder.getInventory());
+    }
+
+    private int readCustomModelData(ConfigurationSection section) {
+        return section.getInt("custom-model-data", section.getInt("custom_model_data", -1));
     }
 }

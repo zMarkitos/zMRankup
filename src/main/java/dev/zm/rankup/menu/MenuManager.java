@@ -6,11 +6,10 @@ import dev.zm.rankup.rank.TemplateManager;
 import dev.zm.rankup.config.PlaceholderContext;
 import dev.zm.rankup.requirement.Requirement;
 import dev.zm.rankup.reward.Reward;
-import dev.zm.rankup.util.ColorUtil;
 import dev.zm.rankup.util.FormatUtil;
 import dev.zm.rankup.util.ItemBuilder;
+import dev.zm.rankup.util.SchedulerUtil;
 import dev.zm.rankup.zMRankup;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -27,12 +26,6 @@ public class MenuManager {
 
     public MenuManager(zMRankup plugin) {
         this.plugin = plugin;
-    }
-
-    public void loadMenuConfig() {
-        // Now loaded per-system dynamically or globally if needed.
-        // Static items are now parsed directly when opening the menu to allow
-        // per-system customization.
     }
 
     private Map<String, StaticMenuItemData> getSystemStaticItems(RankupSystem system) {
@@ -58,6 +51,7 @@ public class MenuManager {
                         itemConf.getString("display_name", " "),
                         itemConf.getStringList("lore"),
                         itemConf.getBoolean("glow", false),
+                        readCustomModelData(itemConf),
                         itemConf.getStringList("actions")));
             }
         }
@@ -82,10 +76,15 @@ public class MenuManager {
                         itemConf.getString("display_name", " "),
                         itemConf.getStringList("lore"),
                         itemConf.getBoolean("glow", false),
+                        readCustomModelData(itemConf),
                         itemConf.getStringList("actions")));
             }
         }
         return items;
+    }
+
+    private static int readCustomModelData(ConfigurationSection section) {
+        return section.getInt("custom-model-data", section.getInt("custom_model_data", -1));
     }
 
     public static List<Integer> parseSlots(List<String> slotsRaw) {
@@ -120,13 +119,10 @@ public class MenuManager {
     }
 
     public void openMenu(Player player, RankupSystem system, int page) {
-        final RankupSystem targetSystem = system;
-        final int targetPage = page;
-        if (!org.bukkit.Bukkit.isPrimaryThread()) {
-            org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> openMenu(player, targetSystem, targetPage));
-            return;
-        }
+        SchedulerUtil.runOnEntity(plugin, player, () -> openMenuNow(player, system, page));
+    }
 
+    private void openMenuNow(Player player, RankupSystem system, int page) {
         RankManager rm = plugin.getRankManager();
         TemplateManager tm = plugin.getTemplateManager();
 
@@ -165,8 +161,10 @@ public class MenuManager {
             if (enabled) {
                 String fillerMat = decoSection.getString("material", "GRAY_STAINED_GLASS_PANE");
                 String decoName = decoSection.getString("display_name", " ");
+                int decoModelData = readCustomModelData(decoSection);
                 List<Integer> slots = parseSlots(decoSection.getStringList("slots"));
-                ItemStack fillerItem = new ItemBuilder(fillerMat, player).name(decoName).build();
+                ItemStack fillerItem = new ItemBuilder(fillerMat, player).name(decoName)
+                        .customModelData(decoModelData).build();
                 MenuItem filler = new MenuItem(fillerItem);
                 for (int slot : slots) {
                     builder.setItem(slot, filler);
@@ -195,7 +193,8 @@ public class MenuManager {
                 builder.setItem(slot, new MenuItem(item, e -> {
                     MenuActionExecutor.execute(plugin, player, actions);
                     if (prevPage > 1)
-                        org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> openMenu(player, system, prevPage - 1), 1L);
+                        SchedulerUtil.runOnEntityDelayed(plugin, player,
+                                () -> openMenu(player, system, prevPage - 1), 1L);
                 }));
             } else if ("next-page".equalsIgnoreCase(key)) {
                 if (plugin.getConfigManager().isDynamicPaginationArrowsEnabled()) {
@@ -205,7 +204,8 @@ public class MenuManager {
                 builder.setItem(slot, new MenuItem(item, e -> {
                     MenuActionExecutor.execute(plugin, player, actions);
                     if (nextPage < totalPages)
-                        org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> openMenu(player, system, nextPage + 1), 1L);
+                        SchedulerUtil.runOnEntityDelayed(plugin, player,
+                                () -> openMenu(player, system, nextPage + 1), 1L);
                 }));
             } else if ("close".equalsIgnoreCase(key)) {
                 // Ensure the executor always closes the menu. Inject [close] if the
@@ -350,11 +350,13 @@ public class MenuManager {
             String mat = rank.getMaterial() != null && !"DEFAULT".equalsIgnoreCase(rank.getMaterial())
                     ? rank.getMaterial()
                     : template.getMaterial();
+            int modelData = rank.getCustomModelData() >= 0 ? rank.getCustomModelData() : template.getCustomModelData();
             ItemStack item = new ItemBuilder(mat, player)
                     .amount(rank.getAmount())
                     .name(name)
                     .lore(lore)
                     .glow(template.isGlow())
+                    .customModelData(modelData)
                     .build();
 
             MenuItem rankItem;
@@ -366,12 +368,11 @@ public class MenuManager {
                             plugin.getMessageManager().send(player, "prestige-menu-success");
                         } else {
                             plugin.getMessageManager().send(player, "prestige-menu-fail");
-                            org.bukkit.Bukkit.getScheduler().runTask(plugin,
-                                    () -> openMenu(player, system, currentPage));
+                            SchedulerUtil.runOnEntity(plugin, player, () -> openMenu(player, system, currentPage));
                         }
                     } else {
                         plugin.getRankManager().attemptRankup(system, player);
-                        org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> openMenu(player, system, currentPage));
+                        SchedulerUtil.runOnEntity(plugin, player, () -> openMenu(player, system, currentPage));
                     }
                 });
             } else {
@@ -400,6 +401,7 @@ public class MenuManager {
                 .name(name)
                 .lore(lore)
                 .glow(data.glow)
+                .customModelData(data.customModelData)
                 .build();
     }
 
@@ -489,6 +491,6 @@ public class MenuManager {
     }
 
     private record StaticMenuItemData(String material, int slot, String displayName, List<String> lore, boolean glow,
-            List<String> actions) {
+            int customModelData, List<String> actions) {
     }
 }

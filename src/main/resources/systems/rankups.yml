@@ -21,6 +21,7 @@ templates:
   # Template for ranks that are still locked.
   locked:
     material: RED_STAINED_GLASS_PANE
+    # custom-model-data: 10001   # Custom Model Data for texture packs (optional)
     display_name: "&fRank &8→ {rank_display}"
     lore:
       - ""
@@ -159,6 +160,7 @@ ranks:
     page: 1
     slot: 10
     amount: 1
+    # custom-model-data: 10002   # Optional per-rank custom model data
     list-position: 8
     requirements:
       money:

@@ -1,7 +1,7 @@
 package dev.zm.rankup.command.sub;
 
+import dev.zm.rankup.util.SchedulerUtil;
 import dev.zm.rankup.zMRankup;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -27,7 +27,7 @@ public class GeneralSubCommand implements SubCommand {
             case "version" -> {
                 plugin.getMessageManager().send(sender, "admin-version-checking");
                 plugin.getVersionChecker().checkNow().thenAccept(result -> {
-                    Bukkit.getScheduler().runTask(plugin, () -> {
+                    SchedulerUtil.runOnEntity(plugin, sender instanceof Player p ? p : null, () -> {
                         String currentVersion = plugin.getDescription().getVersion();
                         if (result.updateAvailable()) {
                             plugin.getMessageManager().send(sender, "admin-version-update",

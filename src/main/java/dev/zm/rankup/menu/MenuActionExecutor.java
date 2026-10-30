@@ -2,6 +2,7 @@ package dev.zm.rankup.menu;
 
 import dev.zm.rankup.config.MessageManager;
 import dev.zm.rankup.util.ColorUtil;
+import dev.zm.rankup.util.SchedulerUtil;
 import dev.zm.rankup.zMRankup;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -23,12 +24,7 @@ public final class MenuActionExecutor {
     public static void execute(zMRankup plugin, Player player, List<String> actions) {
         if (player == null)
             return;
-        Runnable task = () -> runActions(plugin, player, actions);
-        if (Bukkit.isPrimaryThread()) {
-            task.run();
-        } else {
-            Bukkit.getScheduler().runTask(plugin, task);
-        }
+        SchedulerUtil.runOnEntity(plugin, player, () -> runActions(plugin, player, actions));
     }
 
     private static void runActions(zMRankup plugin, Player player, List<String> actions) {
@@ -69,7 +65,7 @@ public final class MenuActionExecutor {
             // are not immediately overwritten by the caller's own closeInventory() call.
             player.closeInventory();
 
-            Bukkit.getScheduler().runTask(plugin, () -> {
+            SchedulerUtil.runOnEntity(plugin, player, () -> {
                 for (String action : deferredActions) {
                     Matcher matcher = ACTION_PATTERN.matcher(action.trim());
                     if (!matcher.matches())
@@ -109,9 +105,11 @@ public final class MenuActionExecutor {
                 "player_uuid", player.getUniqueId().toString());
 
         if (asPlayer) {
-            player.performCommand(stripSlash(parsed));
+            // Player commands must run on the player's own thread.
+            SchedulerUtil.runOnEntity(plugin, player, () -> player.performCommand(stripSlash(parsed)));
         } else {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), stripSlash(parsed));
+            // Console commands must run on the global tick thread (Folia enforces this).
+            SchedulerUtil.runGlobal(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), stripSlash(parsed)));
         }
     }
 

@@ -41,6 +41,7 @@ auto-rankup-disabled: "{prefix}&fAuto-rankup &edisabled&f."
 prestige-success: "{prefix}&fYou prestiged! You are now &e{prestige}&f."
 prestige-menu-success: "{prefix}&fPrestige claimed! Rank up for the next level."
 prestige-menu-fail: "{prefix}&cYou do not meet the requirements to prestige."
+prestige-disabled: "{prefix}&cPrestiges are disabled on this server."
 
 # ===========================
 # Update

@@ -3,6 +3,7 @@ package dev.zm.rankup.permission;
 import dev.zm.rankup.rank.Rank;
 import dev.zm.rankup.storage.PlayerData;
 import dev.zm.rankup.system.RankupSystem;
+import dev.zm.rankup.util.SchedulerUtil;
 import dev.zm.rankup.zMRankup;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -96,12 +97,8 @@ public class PermissionManager {
             return;
         }
 
-        if (!Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTask(plugin, () -> ensureAttachment(player));
-            return;
-        }
-
-        attachments.computeIfAbsent(player.getUniqueId(), uuid -> player.addAttachment(plugin));
+        SchedulerUtil.runOnEntity(plugin, player,
+                () -> attachments.computeIfAbsent(player.getUniqueId(), uuid -> player.addAttachment(plugin)));
     }
 
     public void refreshPlayer(Player player) {
@@ -109,32 +106,24 @@ public class PermissionManager {
             return;
         }
 
-        if (!Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTask(plugin, () -> refreshPlayer(player));
-            return;
-        }
+        SchedulerUtil.runOnEntity(plugin, player, () -> {
+            PermissionAttachment attachment = attachments.computeIfAbsent(player.getUniqueId(),
+                    uuid -> player.addAttachment(plugin));
+            clearAttachment(attachment);
 
-        PermissionAttachment attachment = attachments.computeIfAbsent(player.getUniqueId(),
-                uuid -> player.addAttachment(plugin));
-        clearAttachment(attachment);
+            PlayerData data = plugin.getPlayerDataCache().get(player.getUniqueId());
+            if (data == null) {
+                return;
+            }
 
-        PlayerData data = plugin.getPlayerDataCache().get(player.getUniqueId());
-        if (data == null) {
-            return;
-        }
-
-        Map<String, Boolean> effectivePermissions = resolvePlayerPermissions(data);
-        for (Map.Entry<String, Boolean> entry : effectivePermissions.entrySet()) {
-            attachment.setPermission(entry.getKey(), entry.getValue());
-        }
+            Map<String, Boolean> effectivePermissions = resolvePlayerPermissions(data);
+            for (Map.Entry<String, Boolean> entry : effectivePermissions.entrySet()) {
+                attachment.setPermission(entry.getKey(), entry.getValue());
+            }
+        });
     }
 
     public void refreshAllOnlinePlayers() {
-        if (!Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTask(plugin, this::refreshAllOnlinePlayers);
-            return;
-        }
-
         for (Player player : Bukkit.getOnlinePlayers()) {
             refreshPlayer(player);
         }
@@ -145,37 +134,31 @@ public class PermissionManager {
             return;
         }
 
-        if (!Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTask(plugin, () -> removePlayer(player));
-            return;
-        }
-
         UUID uuid = player.getUniqueId();
-        PermissionAttachment attachment = attachments.remove(uuid);
-        if (attachment != null) {
-            try {
-                player.removeAttachment(attachment);
-            } catch (IllegalArgumentException ignored) {
-                // Attachment was already removed by Bukkit or another cleanup path.
+        SchedulerUtil.runOnEntity(plugin, player, () -> {
+            PermissionAttachment attachment = attachments.remove(uuid);
+            if (attachment != null) {
+                try {
+                    player.removeAttachment(attachment);
+                } catch (IllegalArgumentException ignored) {
+                    // Attachment was already removed by Bukkit or another cleanup path.
+                }
             }
-        }
+        });
     }
 
     public void clearAll() {
-        if (!Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTask(plugin, this::clearAll);
-            return;
-        }
-
         for (Map.Entry<UUID, PermissionAttachment> entry : new HashMap<>(attachments).entrySet()) {
             Player player = Bukkit.getPlayer(entry.getKey());
             PermissionAttachment attachment = entry.getValue();
             if (player != null && player.isOnline() && attachment != null) {
-                try {
-                    player.removeAttachment(attachment);
-                } catch (IllegalArgumentException ignored) {
-                    // Ignore cleanup races during shutdown/reload.
-                }
+                SchedulerUtil.runOnEntity(plugin, player, () -> {
+                    try {
+                        player.removeAttachment(attachment);
+                    } catch (IllegalArgumentException ignored) {
+                        // Ignore cleanup races during shutdown/reload.
+                    }
+                });
             }
         }
         attachments.clear();

@@ -10,20 +10,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
 
 public class ConfigManager {
 
     private final zMRankup plugin;
-    private final YmlMigrationManager migrationManager; // NEW
+    private final YmlMigrationManager migrationManager;
     private FileConfiguration config;
     private FileConfiguration langConfig;
     private File langFile;
 
     public ConfigManager(zMRankup plugin) {
         this.plugin = plugin;
-        this.migrationManager = new YmlMigrationManager(plugin); // NEW
+        this.migrationManager = new YmlMigrationManager(plugin);
     }
 
     public void loadAll() {
@@ -181,6 +179,10 @@ public class ConfigManager {
         return config.getBoolean("sounds.enabled", true);
     }
 
+    public boolean isPrestigeEnabled() {
+        return config.getBoolean("prestige.enabled", true);
+    }
+
     public String getSound(String key) {
         return config.getString("sounds." + key);
     }
@@ -212,22 +214,6 @@ public class ConfigManager {
 
     public ConfigurationSection getRequirementLoreSection() {
         return langConfig != null ? langConfig.getConfigurationSection("requirements.default-lore") : null;
-    }
-
-    public List<Integer> getRankSlots() {
-        List<Integer> list = config.getIntegerList("menu.rank-slots");
-        if (list == null || list.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return list;
-    }
-
-    public int getMenuRows() {
-        return config.getInt("menu.rows", 6);
-    }
-
-    public String getMenuTitle() {
-        return config.getString("menu.title", "<dark_gray>✦ Menu de RankUps ✦");
     }
 
     public int getProgressBarLength() {

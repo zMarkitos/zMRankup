@@ -36,7 +36,7 @@ An advanced, highly customizable rank-up plugin for Minecraft servers (Paper 1.1
 ## Requirements
 
 - **Java 17+**
-- **Paper 1.19+** (or forks)
+- **Paper 1.19+** (or forks, including **Folia**) — compatible with 1.19, 1.20, 1.21 and Paper 26.x
 - [Vault](https://www.spigotmc.org/resources/vault.34315/) (Optional, needed for economy requirements)
 - [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) (Optional, highly recommended)
 

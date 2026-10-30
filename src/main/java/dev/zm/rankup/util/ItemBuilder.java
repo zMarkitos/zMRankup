@@ -134,14 +134,15 @@ public class ItemBuilder {
 
     public ItemBuilder glow(boolean glow) {
         if (glow && meta != null) {
-            meta.addEnchant(Enchantment.LUCK, 1, true);
+            // MENDING is stable across 1.19 -> latest (LUCK was removed in 1.20.5).
+            meta.addEnchant(Enchantment.MENDING, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
         return this;
     }
 
-    public ItemBuilder customModelData(int data) {
-        if (meta != null) {
+    public ItemBuilder customModelData(Integer data) {
+        if (meta != null && data != null && data >= 0) {
             meta.setCustomModelData(data);
         }
         return this;

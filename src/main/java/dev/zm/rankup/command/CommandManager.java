@@ -1,6 +1,7 @@
 package dev.zm.rankup.command;
 
 import dev.zm.rankup.system.RankupSystem;
+import dev.zm.rankup.util.SchedulerUtil;
 import dev.zm.rankup.zMRankup;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -130,9 +131,9 @@ public class CommandManager {
             }
 
             // Sync commands for all online players so they see the changes in tab
-            // completion
+            // completion (on Folia this must run on each player's own thread).
             for (Player player : Bukkit.getOnlinePlayers()) {
-                player.updateCommands();
+                SchedulerUtil.runOnEntity(plugin, player, player::updateCommands);
             }
 
         } catch (Exception e) {

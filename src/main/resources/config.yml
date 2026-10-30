@@ -16,7 +16,7 @@
 # ============================================================
 
 # Do not Modify.
-config-version: 2
+config-version: 3
 
 # ============================================================
 # General Settings
@@ -115,6 +115,11 @@ sounds:
   page-turn: ITEM_BOOK_PAGE_TURN
 
 prestige:
+  # Master switch for the prestige system.
+  # Set to false to disable prestige entirely: /prestiges will not open
+  # the menu and prestige can no longer be performed.
+  enabled: true
+
   close-menu-on-success: true
 
 # ============================================================

@@ -28,13 +28,13 @@ public class TemplateManager {
             if (tmpl == null) continue;
 
             String mat = tmpl.getString("material", "STONE");
-
             String name = tmpl.getString("display_name", tmpl.getString("name", key));
             List<String> lore = tmpl.getStringList("lore");
             boolean glow = tmpl.getBoolean("glow", false);
             int slot = tmpl.getInt("slot", -1);
+            int customModelData = tmpl.getInt("custom-model-data", tmpl.getInt("custom_model_data", -1));
 
-            templates.put(key, new TemplateData(mat, name, lore, glow, slot));
+            templates.put(key, new TemplateData(mat, name, lore, glow, slot, customModelData));
         }
     }
 
@@ -68,17 +68,20 @@ public class TemplateManager {
         private final List<String> lore;
         private final boolean glow;
         private final int slot;
-
-        public TemplateData(String material, String name, List<String> lore, boolean glow) {
-            this(material, name, lore, glow, -1);
-        }
+        private final int customModelData;
 
         public TemplateData(String material, String name, List<String> lore, boolean glow, int slot) {
+            this(material, name, lore, glow, slot, -1);
+        }
+
+        public TemplateData(String material, String name, List<String> lore, boolean glow, int slot,
+                int customModelData) {
             this.material = material;
             this.name = name;
             this.lore = lore;
             this.glow = glow;
             this.slot = slot;
+            this.customModelData = customModelData;
         }
 
         public String getMaterial() { return material; }
@@ -86,5 +89,6 @@ public class TemplateManager {
         public List<String> getLore() { return lore; }
         public boolean isGlow() { return glow; }
         public int getSlot() { return slot; }
+        public int getCustomModelData() { return customModelData; }
     }
 }

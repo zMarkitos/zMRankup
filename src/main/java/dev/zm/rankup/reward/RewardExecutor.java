@@ -3,6 +3,7 @@ package dev.zm.rankup.reward;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import dev.zm.rankup.config.PlaceholderContext;
+import dev.zm.rankup.util.SchedulerUtil;
 import dev.zm.rankup.zMRankup;
 
 import java.util.List;
@@ -41,11 +42,9 @@ public class RewardExecutor {
             }
         };
 
-        if (Bukkit.isPrimaryThread()) {
-            task.run();
-        } else {
-            Bukkit.getScheduler().runTask(zMRankup.getInstance(), task);
-        }
+        // Console commands must run on the global tick thread on Folia (not the entity
+        // thread), because Bukkit.dispatchCommand(console, ...) enforces that.
+        SchedulerUtil.runGlobal(zMRankup.getInstance(), task);
     }
 
     public static void executeAll(Player player, List<Reward> rewards) {

@@ -93,8 +93,9 @@ public class RankupSystem {
             List<String> lore = tmpl.getStringList("lore");
             boolean glow = tmpl.getBoolean("glow", false);
             int slot = tmpl.getInt("slot", -1);
+            int customModelData = tmpl.getInt("custom-model-data", tmpl.getInt("custom_model_data", -1));
 
-            templates.put(key, new TemplateData(mat, name, lore, glow, slot));
+            templates.put(key, new TemplateData(mat, name, lore, glow, slot, customModelData));
         }
     }
 

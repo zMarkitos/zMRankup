@@ -2,7 +2,8 @@ name: zMRankup
 version: '${project.version}'
 main: dev.zm.rankup.zMRankup
 api-version: '1.19'
-authors: [zMarkitos_]
+author: zMarkitos_
+folia-supported: true
 description: Advanced Rankup, Prestige & Progression System with automated setup, customizable ranks, rewards, and powerful integrations.
 
 softdepend:
